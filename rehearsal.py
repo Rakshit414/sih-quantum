@@ -335,7 +335,7 @@ class QuantumRehearsalRunner:
         # 12. Measurement-Device-Independent QDS (Q-MDI)
         t0 = time.perf_counter()
         mdi = MDIRelayWatcher()
-        mdi_res = mdi.simulate_mdi_session("Compromised Untrusted Relay", num_trials=1000)
+        mdi_res = mdi.simulate_mdi_session("Compromised Untrusted Relay", num_trials=1200)
         lat = (time.perf_counter() - t0) * 1000.0
         results.append(WatchtowerTestResult(
             watchtower_name="MDI Untrusted Relay Watchtower (Q-MDI)",
