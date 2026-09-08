@@ -204,16 +204,22 @@ def build_telemetry_trend_chart(history_df: pd.DataFrame) -> go.Figure:
         line_dash="dash",
         line_color="#dc2626",
         annotation_text="Critical Threat (z ≥ 4.0 σ)",
-        annotation_position="top right",
-        annotation_font=dict(family=FONT_FAMILY, color="#dc2626", size=10)
+        annotation_position="top left",
+        annotation_font=dict(family=FONT_FAMILY, color="#dc2626", size=10),
+        annotation_bgcolor="rgba(255, 255, 255, 0.9)",
+        annotation_bordercolor="#fca5a5",
+        annotation_borderwidth=1
     )
     fig.add_hline(
         y=2.0,
         line_dash="dot",
         line_color="#d97706",
         annotation_text="Suspicious Drift (z ≥ 2.0 σ)",
-        annotation_position="top right",
-        annotation_font=dict(family=FONT_FAMILY, color="#d97706", size=10)
+        annotation_position="bottom left",
+        annotation_font=dict(family=FONT_FAMILY, color="#b45309", size=10),
+        annotation_bgcolor="rgba(255, 255, 255, 0.9)",
+        annotation_bordercolor="#fde68a",
+        annotation_borderwidth=1
     )
 
     fig.update_layout(
