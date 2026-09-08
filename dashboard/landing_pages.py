@@ -151,6 +151,7 @@ def render_executive_protocol_tour():
             if st.button("Launch Honest Demo in Cockpit", key="demo_honest", type="primary", use_container_width=True):
                 st.session_state.selected_scenario_idx = 0
                 st.session_state.active_view = "Live Watchtower Cockpit"
+                st.session_state.sidebar_nav_mode = "Live Watchtower Cockpit"
                 st.rerun()
 
     with col_d2:
@@ -170,6 +171,7 @@ def render_executive_protocol_tour():
             if st.button("Launch Forgery Demo in Cockpit", key="demo_forgery", type="primary", use_container_width=True):
                 st.session_state.selected_scenario_idx = 1
                 st.session_state.active_view = "Live Watchtower Cockpit"
+                st.session_state.sidebar_nav_mode = "Live Watchtower Cockpit"
                 st.rerun()
 
     col_d3, col_d4 = st.columns(2)
@@ -190,6 +192,7 @@ def render_executive_protocol_tour():
             if st.button("Launch Impersonation Demo in Cockpit", key="demo_impersonate", type="primary", use_container_width=True):
                 st.session_state.selected_scenario_idx = 2
                 st.session_state.active_view = "Live Watchtower Cockpit"
+                st.session_state.sidebar_nav_mode = "Live Watchtower Cockpit"
                 st.rerun()
 
     with col_d4:
@@ -209,6 +212,7 @@ def render_executive_protocol_tour():
             if st.button("Launch Replay Demo in Cockpit", key="demo_replay", type="primary", use_container_width=True):
                 st.session_state.selected_scenario_idx = 3
                 st.session_state.active_view = "Live Watchtower Cockpit"
+                st.session_state.sidebar_nav_mode = "Live Watchtower Cockpit"
                 st.rerun()
 
 
@@ -381,6 +385,7 @@ def render_threat_matrix_directory():
                 """, unsafe_allow_html=True)
                 if st.button(f"Open {wt['id']} in Live Cockpit", key=f"btn_nav_{wt['id']}", use_container_width=True):
                     st.session_state.active_view = "Live Watchtower Cockpit"
+                    st.session_state.sidebar_nav_mode = "Live Watchtower Cockpit"
                     st.rerun()
 
     # Section: SIH-26141 Compliance Table

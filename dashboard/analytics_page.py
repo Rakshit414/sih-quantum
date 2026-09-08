@@ -57,6 +57,7 @@ def render_quantum_graph_analytics_page(
     with col_ret1:
         if st.button("< RETURN TO LIVE COCKPIT", key="btn_return_cockpit", use_container_width=True, type="secondary"):
             st.session_state.active_view = "Live Watchtower Cockpit"
+            st.session_state.sidebar_nav_mode = "Live Watchtower Cockpit"
             st.rerun()
 
     if assessment is None or not assessment.token_trials:
