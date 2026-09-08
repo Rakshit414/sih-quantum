@@ -921,6 +921,7 @@ if trigger_run:
     st.session_state.last_scenario_info = scenario_desc
     st.session_state.last_latency_ms = latency_ms
     st.session_state.last_incident_report = incident_report
+    st.session_state.detector = detector
 
 
 assessment: ThreatAssessment = st.session_state.last_assessment
@@ -928,29 +929,38 @@ rx_sig: QuantumDigitalSignature = st.session_state.last_signature
 legit_sig: QuantumDigitalSignature = st.session_state.last_legit_signature or rx_sig
 incident_report: IncidentReport = st.session_state.last_incident_report
 
+if "detector" not in st.session_state or st.session_state.detector is None:
+    st.session_state.detector = QStatDetector(
+        baseline_noise_p0=ambient_noise_p0,
+        z_suspicious_threshold=2.0,
+        z_malicious_threshold=4.0,
+        freshness_registry=st.session_state.freshness_registry
+    )
+detector: QStatDetector = st.session_state.detector
+
 # 3. Main Dashboard View Switcher Navigation Bar
 col_nv1, col_nv2, col_nv3, col_nv4 = st.columns([1, 1, 1, 1])
 with col_nv1:
     cockpit_active = (st.session_state.active_view == "Live Watchtower Cockpit")
-    if st.button("LIVE WATCHTOWER COCKPIT", use_container_width=True, type="primary" if cockpit_active else "secondary", help="Interactive verification engine, real-time threat gauge, and 15 physical watchtowers"):
+    if st.button("LIVE WATCHTOWER COCKPIT", key="nav_btn_cockpit", use_container_width=True, type="primary" if cockpit_active else "secondary", help="Interactive verification engine, real-time threat gauge, and 15 physical watchtowers"):
         st.session_state.active_view = "Live Watchtower Cockpit"
         st.rerun()
 
 with col_nv2:
     tour_active = (st.session_state.active_view == "Executive Protocol Tour")
-    if st.button("EXECUTIVE PROTOCOL TOUR", use_container_width=True, type="primary" if tour_active else "secondary", help="Visual 3-qubit teleportation architecture walkthrough, 3-tier defense model, and 1-click scenario demos"):
+    if st.button("EXECUTIVE PROTOCOL TOUR", key="nav_btn_tour", use_container_width=True, type="primary" if tour_active else "secondary", help="Visual 3-qubit teleportation architecture walkthrough, 3-tier defense model, and 1-click scenario demos"):
         st.session_state.active_view = "Executive Protocol Tour"
         st.rerun()
 
 with col_nv3:
     matrix_active = (st.session_state.active_view == "14-Watchtower Threat Matrix")
-    if st.button("14-WATCHTOWER THREAT MATRIX", use_container_width=True, type="primary" if matrix_active else "secondary", help="Complete catalog of all 14 physical watchtowers, mathematical criteria, and target attack vectors"):
+    if st.button("14-WATCHTOWER THREAT MATRIX", key="nav_btn_matrix", use_container_width=True, type="primary" if matrix_active else "secondary", help="Complete catalog of all 14 physical watchtowers, mathematical criteria, and target attack vectors"):
         st.session_state.active_view = "14-Watchtower Threat Matrix"
         st.rerun()
 
 with col_nv4:
     analytics_active = (st.session_state.active_view == "Quantum Graph Analytics")
-    if st.button("QUANTUM GRAPH ANALYTICS", use_container_width=True, type="primary" if analytics_active else "secondary", help="Deep interactive diagnostics: 3D Bloch spheres, density matrix tomography, multi-token fingerprints, and phase space plots"):
+    if st.button("QUANTUM GRAPH ANALYTICS", key="nav_btn_quantum_analytics", use_container_width=True, type="primary" if analytics_active else "secondary", help="Deep interactive diagnostics: 3D Bloch spheres, density matrix tomography, multi-token fingerprints, and phase space plots"):
         st.session_state.active_view = "Quantum Graph Analytics"
         st.rerun()
 
@@ -1017,14 +1027,14 @@ with col_left:
             <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-left: 4px solid #ff671f; border-radius: 6px; padding: 12px 14px; margin-top: 14px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
                     <span style="font-weight: 800; color: #0b2545; font-size: 0.84rem; letter-spacing: 0.4px;">DEEP QUANTUM ANALYTICS & DIAGNOSTICS</span>
-                    <span style="background: #fff7ed; color: #c2410c; font-weight: 700; font-size: 0.68rem; padding: 2px 8px; border-radius: 3px; border: 1px solid #fed7aa;">5 Specialized Views</span>
+                    <span style="background: #fff7ed; color: #c2410c; font-weight: 700; font-size: 0.68rem; padding: 2px 8px; border-radius: 3px; border: 1px solid #fed7aa;">6 Specialized Views</span>
                 </div>
                 <div style="font-size: 0.74rem; color: #475569; line-height: 1.45; margin-bottom: 10px;">
                     Detailed interactive 3D Bloch sphere projections, 2x2 density matrix tomography, multi-token signature threat fingerprints, and noise vs attack phase space discrimination.
                 </div>
             </div>
             """, unsafe_allow_html=True)
-            if st.button("OPEN QUANTUM GRAPH ANALYTICS LAB ->", use_container_width=True, type="primary"):
+            if st.button("OPEN QUANTUM GRAPH ANALYTICS LAB ->", key="btn_open_analytics_lab", use_container_width=True, type="primary"):
                 st.session_state.active_view = "Quantum Graph Analytics"
                 st.rerun()
 
@@ -1096,10 +1106,6 @@ with col_right:
             </div>
         </div>
         """, unsafe_allow_html=True)
-
-        # Standardized Anomaly Gauge Chart
-        fig_gauge = build_threat_gauge(assessment.z_score, z_suspicious=2.0, z_malicious=4.0)
-        st.plotly_chart(fig_gauge, use_container_width=True)
 
         # Metrics Table
         p_val_disp = "< 1e-15" if assessment.p_value < 1e-15 else f"{assessment.p_value:.4e}"

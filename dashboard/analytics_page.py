@@ -14,6 +14,7 @@ from security.detector import ThreatAssessment
 from security.signature import QuantumDigitalSignature
 from quantum.tomography import QuantumStateTomography
 from dashboard.charts import (
+    build_threat_gauge,
     build_outcome_distribution_chart,
     build_bloch_sphere_3d,
     build_density_matrix_heatmap,
@@ -31,7 +32,7 @@ def render_quantum_graph_analytics_page(
 ) -> None:
     """
     Renders the dedicated, highly navigatable Quantum Graph Analytics and Telemetry Lab.
-    Provides 5 specialized sub-tabs with interactive token selection, 3D Bloch sphere rotation,
+    Provides 6 specialized sub-tabs with interactive token selection, 3D Bloch sphere rotation,
     density matrix tomography, multi-token signature fingerprinting, and phase space discrimination.
     """
     # Header & Quick Navigation Bar
@@ -54,7 +55,7 @@ def render_quantum_graph_analytics_page(
     # Top return button
     col_ret1, col_ret2 = st.columns([1, 3])
     with col_ret1:
-        if st.button("< RETURN TO LIVE COCKPIT", use_container_width=True, type="secondary"):
+        if st.button("< RETURN TO LIVE COCKPIT", key="btn_return_cockpit", use_container_width=True, type="secondary"):
             st.session_state.active_view = "Live Watchtower Cockpit"
             st.rerun()
 
@@ -69,14 +70,45 @@ def render_quantum_graph_analytics_page(
     max_token_idx = len(assessment.token_trials) - 1
     selected_idx = min(st.session_state.analytics_token_idx, max_token_idx)
 
-    # 5 Specialized Analytics Sub-Tabs
-    tab_proj, tab_qst, tab_matrix, tab_trend, tab_phase = st.tabs([
-        "1. Single-Token Born Rule Projections",
-        "2. QST Tomography & 3D Bloch Sphere",
-        "3. Multi-Token Signature Fingerprint",
-        "4. Longitudinal Anomaly Telemetry",
-        "5. Noise vs Attack Phase Space"
+    # 6 Specialized Analytics Sub-Tabs
+    tab_gauge, tab_proj, tab_qst, tab_matrix, tab_trend, tab_phase = st.tabs([
+        "1. Threat Anomaly Gauge",
+        "2. Single-Token Born Rule Projections",
+        "3. QST Tomography & 3D Bloch Sphere",
+        "4. Multi-Token Signature Fingerprint",
+        "5. Longitudinal Anomaly Telemetry",
+        "6. Noise vs Attack Phase Space"
     ])
+
+    # -------------------------------------------------------------
+    # TAB 1: Threat Anomaly Gauge
+    # -------------------------------------------------------------
+    with tab_gauge:
+        st.markdown("#### Real-Time Quantum Anomaly Score Gauge & Statistical Dispersion")
+        st.caption("Standardized anomaly index (Z-score) measuring deviations from calibrated environmental noise baseline.")
+        
+        col_g1, col_g2 = st.columns([1.1, 0.9], gap="medium")
+        with col_g1:
+            fig_gauge = build_threat_gauge(assessment.z_score, z_suspicious=2.0, z_malicious=4.0)
+            st.plotly_chart(fig_gauge, use_container_width=True)
+            
+        with col_g2:
+            p_val_disp = "< 1e-15" if assessment.p_value < 1e-15 else f"{assessment.p_value:.4e}"
+            st.markdown(f"""
+            <div style="background:#ffffff; border:1px solid #cbd5e1; border-radius:6px; padding:16px; box-shadow:0 1px 3px rgba(0,0,0,0.04);">
+                <div style="font-size:0.75rem; font-weight:700; color:#475569; text-transform:uppercase;">Statistical Assessment Parameters</div>
+                <table class="metrics-table" style="margin-top:10px;">
+                    <tr><th>Parameter</th><th>Value</th></tr>
+                    <tr><td>Observed Error Rate (e_hat)</td><td><b>{assessment.error_rate * 100:.2f}%</b></td></tr>
+                    <tr><td>Baseline Calibration (p0)</td><td><b>{assessment.baseline_noise_p0 * 100:.2f}%</b></td></tr>
+                    <tr><td>Standardized Z-Score</td><td><b>{assessment.z_score:+.2f} sigma</b></td></tr>
+                    <tr><td>Exact Binomial p-value</td><td><code>{p_val_disp}</code></td></tr>
+                    <tr><td>Statistical Confidence</td><td><b>{assessment.confidence * 100:.2f}%</b></td></tr>
+                    <tr><td>95% Confidence Interval</td><td>[{assessment.ci_lower*100:.1f}%, {assessment.ci_upper*100:.1f}%]</td></tr>
+                    <tr><td>Threat Category Verdict</td><td><b>{assessment.verdict.value}</b></td></tr>
+                </table>
+            </div>
+            """, unsafe_allow_html=True)
 
     # -------------------------------------------------------------
     # TAB 1: Single-Token Born Rule Projections
