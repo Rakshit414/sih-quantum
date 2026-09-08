@@ -59,6 +59,24 @@ from dashboard.charts import (
     build_telemetry_trend_chart,
 )
 from dashboard.visualizer import render_teleportation_pipeline_html
+from dashboard.landing_pages import render_executive_protocol_tour, render_threat_matrix_directory
+
+
+def render_app_footer():
+    """Renders the standard institutional footer with zero emojis."""
+    st.markdown("""
+    <div class="app-footer">
+        <div style="font-weight:700; font-size:0.85rem; margin-bottom:4px;">
+            Q-SENTINEL: QUANTUM-INSPIRED CYBER THREAT DETECTION FRAMEWORK
+        </div>
+        <div>
+            Teleportation-Based Quantum Digital Signature Verification and Runtime Threat Watchtower
+        </div>
+        <div style="margin-top:4px; color:#94a3b8; font-size:0.7rem;">
+            Smart India Hackathon (SIH-26141) | Grand Unified Release Version 1.0.0 Enterprise Defense Edition (Phase 40/40 Locked)
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
 
 
 # Streamlit Page Setup - Clean page title with zero emojis
@@ -386,16 +404,115 @@ st.markdown("""
         line-height: 1.45;
     }
 
-    /* Footer */
-    .app-footer {
-        background-color: #0b2545;
-        color: #cbd5e1;
-        border-top: 3px solid #ff671f;
-        padding: 18px 20px;
-        font-size: 0.78rem;
-        text-align: center;
-        margin-top: 35px;
-        border-radius: 6px;
+    /* Mobile Responsive Optimizations */
+    @media (max-width: 768px) {
+        .block-container {
+            padding-top: 0.75rem !important;
+            padding-bottom: 1.5rem !important;
+            padding-left: 0.5rem !important;
+            padding-right: 0.5rem !important;
+        }
+
+        /* Top Brand Navigation */
+        .nav-orange-top {
+            padding: 10px 14px !important;
+            gap: 8px !important;
+        }
+        .nav-orange-brand {
+            gap: 6px !important;
+            flex-direction: column !important;
+            align-items: flex-start !important;
+        }
+        .nav-orange-brand h1 {
+            font-size: 1.15rem !important;
+        }
+        .nav-orange-brand span {
+            border-left: none !important;
+            padding-left: 0 !important;
+            font-size: 0.76rem !important;
+        }
+        .nav-orange-tag {
+            font-size: 0.65rem !important;
+            padding: 3px 8px !important;
+            align-self: flex-start !important;
+        }
+
+        /* Blue Sub-Nav */
+        .nav-blue-sub {
+            padding: 8px 12px !important;
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            gap: 6px !important;
+            margin-bottom: 12px !important;
+        }
+        .nav-blue-left {
+            flex-direction: column !important;
+            gap: 3px !important;
+            font-size: 0.72rem !important;
+        }
+        .nav-blue-right {
+            font-size: 0.68rem !important;
+            border-top: 1px solid rgba(255,255,255,0.15) !important;
+            padding-top: 4px !important;
+            width: 100% !important;
+        }
+
+        /* Metrics Table Overflow */
+        .metrics-table {
+            font-size: 0.75rem !important;
+        }
+        .metrics-table th, .metrics-table td {
+            padding: 6px 8px !important;
+        }
+
+        /* Streamlit Tab Bar Horizontal Swipe */
+        div[data-baseweb="tab-list"] {
+            overflow-x: auto !important;
+            white-space: nowrap !important;
+            flex-wrap: nowrap !important;
+            -webkit-overflow-scrolling: touch !important;
+            padding-bottom: 4px !important;
+        }
+        button[data-baseweb="tab"] {
+            font-size: 0.75rem !important;
+            padding: 6px 10px !important;
+            flex-shrink: 0 !important;
+        }
+
+        /* Buttons Touch Target */
+        button[kind="primary"],
+        button[kind="secondary"],
+        button[data-testid="baseButton-primary"],
+        button[data-testid="baseButton-secondary"] {
+            padding: 8px 12px !important;
+            font-size: 0.8rem !important;
+            min-height: 40px !important;
+        }
+
+        /* Quantum Pipeline Grid on Mobile */
+        .quantum-pipeline-grid {
+            grid-template-columns: 1fr 1fr !important;
+            gap: 8px !important;
+        }
+
+        /* Status Banners on Mobile */
+        .status-banner-legit,
+        .status-banner-suspicious,
+        .status-banner-malicious {
+            padding: 10px 12px !important;
+        }
+        .status-banner-title {
+            font-size: 0.85rem !important;
+        }
+        .status-banner-desc {
+            font-size: 0.75rem !important;
+        }
+    }
+
+    @media (max-width: 420px) {
+        .quantum-pipeline-grid {
+            grid-template-columns: 1fr !important;
+        }
     }
 </style>
 """, unsafe_allow_html=True)
@@ -431,6 +548,12 @@ st.markdown("""
 
 
 # Initialize Session State
+if "active_view" not in st.session_state:
+    st.session_state.active_view = "Live Watchtower Cockpit"
+
+if "selected_scenario_idx" not in st.session_state:
+    st.session_state.selected_scenario_idx = 0
+
 if "freshness_registry" not in st.session_state:
     st.session_state.freshness_registry = FreshnessRegistry(max_time_window_seconds=60.0)
 
@@ -511,7 +634,27 @@ with st.sidebar:
         VERIFICATION CONSOLE
     </div>
     
-    <div style="background:#f0fdf4; border:1px solid #86efac; border-left:4px solid #16a34a; padding:10px 12px; font-size:0.78rem; color:#14532d; border-radius:4px; margin-bottom:16px; line-height:1.5;">
+    <div style="background-color:#f1f5f9; border:1px solid #cbd5e1; padding:6px 10px; font-weight:700; font-size:0.75rem; color:#0b2545; border-radius:4px; margin-bottom:8px;">
+        NAVIGATION MODE
+    </div>
+    """, unsafe_allow_html=True)
+
+    view_nav_options = ["Live Watchtower Cockpit", "Executive Protocol Tour", "14-Watchtower Threat Matrix"]
+    cur_v_idx = 0
+    if st.session_state.active_view in view_nav_options:
+        cur_v_idx = view_nav_options.index(st.session_state.active_view)
+    selected_sidebar_view = st.radio(
+        "Active System View",
+        options=view_nav_options,
+        index=cur_v_idx,
+        label_visibility="collapsed"
+    )
+    if selected_sidebar_view != st.session_state.active_view:
+        st.session_state.active_view = selected_sidebar_view
+        st.rerun()
+
+    st.markdown("""
+    <div style="background:#f0fdf4; border:1px solid #86efac; border-left:4px solid #16a34a; padding:10px 12px; font-size:0.78rem; color:#14532d; border-radius:4px; margin-bottom:16px; margin-top:8px; line-height:1.5;">
         <b>OPERATOR QUICK GUIDE:</b><br>
         1. Set <b>Signer Identity</b> (Alice=Legit, Mallory=Intruder).<br>
         2. Select an <b>Evaluation Scenario</b> below.<br>
@@ -546,7 +689,7 @@ with st.sidebar:
     if st.session_state.mitigation_orchestrator.is_quarantined(signer_id):
         st.markdown(f"""
         <div style="background:#fef2f2; border:1px solid #fca5a5; border-left:4px solid #dc2626; padding:8px 12px; font-size:0.78rem; color:#991b1b; border-radius:4px; margin-bottom:10px;">
-            ⚠️ <b>Administrative Notice:</b> Signer '{signer_id}' is currently under security quarantine due to past detected anomalies.
+            <b>[ADMINISTRATIVE NOTICE]</b> Signer '{signer_id}' is currently under security quarantine due to past detected anomalies.
         </div>
         """, unsafe_allow_html=True)
         if st.button(f"Release Quarantine for {signer_id}", use_container_width=True):
@@ -554,6 +697,9 @@ with st.sidebar:
             st.rerun()
 
     st.markdown("**3. Evaluation Threat Scenario**")
+    scenario_idx = st.session_state.get("selected_scenario_idx", 0)
+    if scenario_idx >= 5 or scenario_idx < 0:
+        scenario_idx = 0
     scenario_option = st.selectbox(
         "Evaluation Scenario",
         options=[
@@ -563,6 +709,7 @@ with st.sidebar:
             "4. Replay Attack (Stale Classical Token)",
             "5. Quantum Channel Manipulation (Noise / Flips)"
         ],
+        index=scenario_idx,
         label_visibility="collapsed"
     )
     
@@ -770,7 +917,37 @@ rx_sig: QuantumDigitalSignature = st.session_state.last_signature
 legit_sig: QuantumDigitalSignature = st.session_state.last_legit_signature or rx_sig
 incident_report: IncidentReport = st.session_state.last_incident_report
 
-# Two Primary Columns
+# 3. Main Dashboard View Switcher Navigation Bar
+col_nv1, col_nv2, col_nv3 = st.columns([1, 1, 1])
+with col_nv1:
+    cockpit_active = (st.session_state.active_view == "Live Watchtower Cockpit")
+    if st.button("LIVE WATCHTOWER COCKPIT", use_container_width=True, type="primary" if cockpit_active else "secondary", help="Interactive verification engine, real-time threat gauge, and 15 physical watchtowers"):
+        st.session_state.active_view = "Live Watchtower Cockpit"
+        st.rerun()
+
+with col_nv2:
+    tour_active = (st.session_state.active_view == "Executive Protocol Tour")
+    if st.button("EXECUTIVE PROTOCOL TOUR", use_container_width=True, type="primary" if tour_active else "secondary", help="Visual 3-qubit teleportation architecture walkthrough, 3-tier defense model, and 1-click scenario demos"):
+        st.session_state.active_view = "Executive Protocol Tour"
+        st.rerun()
+
+with col_nv3:
+    matrix_active = (st.session_state.active_view == "14-Watchtower Threat Matrix")
+    if st.button("14-WATCHTOWER THREAT MATRIX", use_container_width=True, type="primary" if matrix_active else "secondary", help="Complete catalog of all 14 physical watchtowers, mathematical criteria, and target attack vectors"):
+        st.session_state.active_view = "14-Watchtower Threat Matrix"
+        st.rerun()
+
+# Dispatch Active View
+if st.session_state.active_view == "Executive Protocol Tour":
+    render_executive_protocol_tour()
+    render_app_footer()
+    st.stop()
+elif st.session_state.active_view == "14-Watchtower Threat Matrix":
+    render_threat_matrix_directory()
+    render_app_footer()
+    st.stop()
+
+# Two Primary Columns (Live Watchtower Cockpit)
 col_left, col_right = st.columns([1.1, 0.9], gap="medium")
 
 with col_left:
@@ -805,10 +982,7 @@ with col_left:
                 signer_name=rx_sig.signer_id,
                 verifier_name=verifier_label
             )
-            if hasattr(st, "html"):
-                st.html(pipeline_html)
-            else:
-                st.markdown(pipeline_html, unsafe_allow_html=True)
+            st.markdown(pipeline_html, unsafe_allow_html=True)
             
         # Projective Measurement Distribution Chart
         if assessment and assessment.token_trials:
@@ -889,6 +1063,36 @@ with col_right:
                 </div>
             </div>
             """, unsafe_allow_html=True)
+
+        # Dedicated Anomaly Score KPI Display Card
+        if assessment.z_score < 2.0:
+            z_bg = "#f0fdf4"
+            z_border = "#86efac"
+            z_text = "#15803d"
+            z_badge = "NORMAL BASELINE NOISE"
+        elif assessment.z_score < 4.0:
+            z_bg = "#fffbeb"
+            z_border = "#fcd34d"
+            z_text = "#b45309"
+            z_badge = "ELEVATED CHANNEL DISTURBANCE"
+        else:
+            z_bg = "#fef2f2"
+            z_border = "#fca5a5"
+            z_text = "#b91c1c"
+            z_badge = "CRITICAL THREAT ANOMALY"
+
+        st.markdown(f"""
+        <div style="background:{z_bg}; border:1px solid {z_border}; border-radius:6px; padding:10px 14px; margin-top:10px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+            <div>
+                <div style="font-size:0.72rem; font-weight:700; color:#475569; text-transform:uppercase; letter-spacing:0.4px;">Standardized Anomaly Score (Z-Score)</div>
+                <div style="font-size:1.6rem; font-weight:800; color:{z_text}; line-height:1.2;">{assessment.z_score:+.2f} σ</div>
+            </div>
+            <div style="text-align:right;">
+                <span style="background:#ffffff; color:{z_text}; font-size:0.75rem; font-weight:800; padding:4px 10px; border-radius:4px; border:1px solid {z_border}; display:inline-block;">{z_badge}</span>
+                <div style="font-size:0.7rem; color:#64748b; margin-top:3px;">Threshold: Suspicious &ge; +2.00σ | Malicious &ge; +4.00σ</div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
 
         # Standardized Anomaly Gauge Chart
         fig_gauge = build_threat_gauge(assessment.z_score, z_suspicious=2.0, z_malicious=4.0)
@@ -1117,7 +1321,8 @@ with tab4:
             latency_ms=st.session_state.last_latency_ms
         )
         
-        st.text_area("Audit Certificate Preview", value=text_cert_str, height=200)
+        st.markdown("**Official Cryptographic Audit Certificate (Immutable / Read-Only):**")
+        st.code(text_cert_str, language="text")
         
         col_d1, col_d2 = st.columns([1, 1])
         with col_d1:
@@ -1919,6 +2124,7 @@ with tab15:
             "NQM Executive Defense Whitepaper",
             value=wp_text,
             height=320,
+            disabled=True,
             help="Official NQM Executive Whitepaper formatted for SIH jury and MeitY evaluation."
         )
 
@@ -2037,18 +2243,5 @@ with tab15:
                 use_container_width=True
             )
 
-
 # Clean Footer (Zero Emojis/Symbols)
-st.markdown("""
-<div class="app-footer">
-    <div style="font-weight:700; font-size:0.85rem; margin-bottom:4px;">
-        Q-SENTINEL: QUANTUM-INSPIRED CYBER THREAT DETECTION FRAMEWORK
-    </div>
-    <div>
-        Teleportation-Based Quantum Digital Signature Verification and Runtime Threat Watchtower
-    </div>
-    <div style="margin-top:4px; color:#94a3b8; font-size:0.7rem;">
-        Smart India Hackathon (SIH-26141) | Grand Unified Release Version 1.0.0 Enterprise Defense Edition (Phase 40/40 Locked)
-    </div>
-</div>
-""", unsafe_allow_html=True)
+render_app_footer()

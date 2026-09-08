@@ -21,7 +21,8 @@ def build_threat_gauge(
 ) -> go.Figure:
     """
     Renders an institutional gauge for the standardized z-score anomaly metric.
-    Uses clean slate and navy tones with zero bright text highlights.
+    Features generous top headroom to prevent title clipping, signed sigma formatting,
+    and distinct pastel risk zones (Normal, Suspicious, Malicious).
     """
     max_range = max(10.0, float(z_score * 1.25))
     display_z = max(0.0, min(z_score, max_range))
@@ -29,25 +30,29 @@ def build_threat_gauge(
     fig = go.Figure(go.Indicator(
         mode="gauge+number",
         value=round(display_z, 2),
-        domain={'x': [0, 1], 'y': [0, 1]},
+        domain={'x': [0.05, 0.95], 'y': [0.05, 0.82]},
         title={
-            'text': "<b>ANOMALY SCORE (z)</b><br><span style='font-size:0.75em;color:#64748b'>Standard Normal Deviations</span>",
-            'font': {'size': 14, 'color': '#0b2545', 'family': FONT_FAMILY}
+            'text': "<b>ANOMALY SCORE (z)</b><br><span style='font-size:0.75em;color:#64748b'>Statistical Z-Score (Deviations from Baseline)</span>",
+            'font': {'size': 13, 'color': '#0b2545', 'family': FONT_FAMILY}
         },
-        number={'font': {'family': FONT_FAMILY, 'color': '#0b2545', 'size': 32}},
+        number={
+            'font': {'family': FONT_FAMILY, 'color': '#0b2545', 'size': 32},
+            'suffix': ' σ',
+            'valueformat': '+.2f'
+        },
         gauge={
             'axis': {'range': [0, max_range], 'tickwidth': 1, 'tickcolor': "#0b2545", 'tickfont': {'family': FONT_FAMILY}},
-            'bar': {'color': "#0b2545", 'thickness': 0.35},
+            'bar': {'color': "#0b2545", 'thickness': 0.38},
             'bgcolor': "#ffffff",
             'borderwidth': 1,
             'bordercolor': "#cbd5e1",
             'steps': [
-                {'range': [0, z_suspicious], 'color': "#f8fafc"},
-                {'range': [z_suspicious, z_malicious], 'color': "#f1f5f9"},
-                {'range': [z_malicious, max_range], 'color': "#e2e8f0"}
+                {'range': [0, z_suspicious], 'color': "#ecfdf5"},
+                {'range': [z_suspicious, z_malicious], 'color': "#fef3c7"},
+                {'range': [z_malicious, max_range], 'color': "#fee2e2"}
             ],
             'threshold': {
-                'line': {'color': "#475569", 'width': 2},
+                'line': {'color': "#dc2626", 'width': 3},
                 'thickness': 0.75,
                 'value': z_malicious
             }
@@ -55,8 +60,8 @@ def build_threat_gauge(
     ))
 
     fig.update_layout(
-        height=240,
-        margin=dict(l=25, r=25, t=45, b=25),
+        height=230,
+        margin=dict(l=20, r=20, t=55, b=15, pad=4),
         paper_bgcolor="#ffffff",
         plot_bgcolor="#ffffff",
         font=dict(family=FONT_FAMILY, color="#0f172a"),
