@@ -60,6 +60,7 @@ from dashboard.charts import (
 )
 from dashboard.visualizer import render_teleportation_pipeline_html
 from dashboard.landing_pages import render_executive_protocol_tour, render_threat_matrix_directory
+from dashboard.analytics_page import render_quantum_graph_analytics_page
 
 
 def render_app_footer():
@@ -928,7 +929,7 @@ legit_sig: QuantumDigitalSignature = st.session_state.last_legit_signature or rx
 incident_report: IncidentReport = st.session_state.last_incident_report
 
 # 3. Main Dashboard View Switcher Navigation Bar
-col_nv1, col_nv2, col_nv3 = st.columns([1, 1, 1])
+col_nv1, col_nv2, col_nv3, col_nv4 = st.columns([1, 1, 1, 1])
 with col_nv1:
     cockpit_active = (st.session_state.active_view == "Live Watchtower Cockpit")
     if st.button("LIVE WATCHTOWER COCKPIT", use_container_width=True, type="primary" if cockpit_active else "secondary", help="Interactive verification engine, real-time threat gauge, and 15 physical watchtowers"):
@@ -947,6 +948,12 @@ with col_nv3:
         st.session_state.active_view = "14-Watchtower Threat Matrix"
         st.rerun()
 
+with col_nv4:
+    analytics_active = (st.session_state.active_view == "Quantum Graph Analytics")
+    if st.button("QUANTUM GRAPH ANALYTICS", use_container_width=True, type="primary" if analytics_active else "secondary", help="Deep interactive diagnostics: 3D Bloch spheres, density matrix tomography, multi-token fingerprints, and phase space plots"):
+        st.session_state.active_view = "Quantum Graph Analytics"
+        st.rerun()
+
 # Dispatch Active View
 if st.session_state.active_view == "Executive Protocol Tour":
     render_executive_protocol_tour()
@@ -954,6 +961,16 @@ if st.session_state.active_view == "Executive Protocol Tour":
     st.stop()
 elif st.session_state.active_view == "14-Watchtower Threat Matrix":
     render_threat_matrix_directory()
+    render_app_footer()
+    st.stop()
+elif st.session_state.active_view == "Quantum Graph Analytics":
+    history_df = st.session_state.telemetry_store.get_dataframe(limit=50)
+    render_quantum_graph_analytics_page(
+        assessment=assessment,
+        rx_sig=rx_sig,
+        legit_sig=legit_sig,
+        history_df=history_df
+    )
     render_app_footer()
     st.stop()
 
@@ -994,46 +1011,22 @@ with col_left:
             )
             st.markdown(pipeline_html, unsafe_allow_html=True)
             
-        # Projective Measurement Distribution Chart
+        # Quick-Launch Analytics Card linking to dedicated Quantum Graph Analytics Lab
         if assessment and assessment.token_trials:
-            selected_token_idx = st.selectbox(
-                "Inspect Signature Qubit Token:",
-                options=list(range(len(assessment.token_trials))),
-                format_func=lambda i: f"Token #{i} (Basis: {rx_sig.tokens[i].basis.value}, State: {rx_sig.tokens[i].eigenstate.label})"
-            )
-            fig_dist = build_outcome_distribution_chart(assessment.token_trials, selected_token_idx)
-            st.plotly_chart(fig_dist, use_container_width=True)
-
-            # Phase 28: Quantum State Tomography (QST) Diagnostics
-            with st.expander("Quantum State Tomography (QST) and Density Matrix Reconstruction", expanded=False):
-                st.caption("Reconstructs the full 2x2 density matrix via Pauli Stokes projections (X, Y, Z) to differentiate environmental decoherence from active eavesdropping.")
-                
-                chosen_token = rx_sig.tokens[selected_token_idx]
-                expected_token = legit_sig.tokens[selected_token_idx]
-                qst_res = QuantumStateTomography.reconstruct_state(
-                    target_state=chosen_token.eigenstate,
-                    expected_state=expected_token.eigenstate,
-                    num_trials_per_basis=250
-                )
-                
-                rho_00 = qst_res.density_matrix[0, 0].real
-                rho_01 = qst_res.density_matrix[0, 1]
-                rho_10 = qst_res.density_matrix[1, 0]
-                rho_11 = qst_res.density_matrix[1, 1]
-                
-                st.markdown(f"""
-                <table class="metrics-table">
-                    <tr><th>Tomography Metric</th><th>Value</th><th>Physical Significance</th></tr>
-                    <tr><td>Reconstructed Density Matrix (rho)</td><td><code>[[{rho_00:.3f}, {rho_01.real:.3f}+{rho_01.imag:.3f}j], [{rho_10.real:.3f}+{rho_10.imag:.3f}j, {rho_11:.3f}]]</code></td><td>Unit-trace positive semi-definite state</td></tr>
-                    <tr><td>Quantum State Fidelity F(rho_exp, rho_rec)</td><td><b>{qst_res.fidelity * 100:.2f}%</b></td><td>Overlap with authorized signature eigenstate</td></tr>
-                    <tr><td>State Purity gamma = Tr(rho^2)</td><td><b>{qst_res.purity:.4f}</b> (Pure=1.0, Mixed=0.5)</td><td>Distinguishes coherent state from thermal noise</td></tr>
-                    <tr><td>Von Neumann Entropy S(rho)</td><td><b>{qst_res.von_neumann_entropy:.4f} bits</b></td><td>Quantum information mixedness / uncertainty</td></tr>
-                    <tr><td>Bloch Vector (S1, S2, S3)</td><td>({qst_res.stokes_parameters[0]:.2f}, {qst_res.stokes_parameters[1]:.2f}, {qst_res.stokes_parameters[2]:.2f})</td><td>Stokes coordinates on Bloch sphere</td></tr>
-                </table>
-                <div style="background:#f8fafc; border:1px solid #cbd5e1; padding:8px 10px; font-size:0.75rem; color:#334155; margin-top:8px;">
-                    <b>Tomographic Diagnostic:</b> {qst_res.diagnostic}
+            st.markdown("""
+            <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-left: 4px solid #ff671f; border-radius: 6px; padding: 12px 14px; margin-top: 14px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                    <span style="font-weight: 800; color: #0b2545; font-size: 0.84rem; letter-spacing: 0.4px;">DEEP QUANTUM ANALYTICS & DIAGNOSTICS</span>
+                    <span style="background: #fff7ed; color: #c2410c; font-weight: 700; font-size: 0.68rem; padding: 2px 8px; border-radius: 3px; border: 1px solid #fed7aa;">5 Specialized Views</span>
                 </div>
-                """, unsafe_allow_html=True)
+                <div style="font-size: 0.74rem; color: #475569; line-height: 1.45; margin-bottom: 10px;">
+                    Detailed interactive 3D Bloch sphere projections, 2x2 density matrix tomography, multi-token signature threat fingerprints, and noise vs attack phase space discrimination.
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+            if st.button("OPEN QUANTUM GRAPH ANALYTICS LAB ->", use_container_width=True, type="primary"):
+                st.session_state.active_view = "Quantum Graph Analytics"
+                st.rerun()
 
 
 with col_right:
