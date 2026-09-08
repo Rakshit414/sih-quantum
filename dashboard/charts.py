@@ -126,7 +126,11 @@ def build_outcome_distribution_chart(
     fig.update_layout(
         title=dict(
             text=f"<b>Token #{selected_token_idx}: Quantum Measurement Statistics (N={trial.num_trials})</b>",
-            font=dict(color="#0b2545", size=13, family=FONT_FAMILY)
+            font=dict(color="#0b2545", size=13, family=FONT_FAMILY),
+            x=0.01,
+            y=0.98,
+            xanchor="left",
+            yanchor="top"
         ),
         barmode='group',
         yaxis=dict(
@@ -139,15 +143,18 @@ def build_outcome_distribution_chart(
             gridcolor="#f1f5f9",
             tickfont=dict(family=FONT_FAMILY, color="#0f172a")
         ),
-        height=270,
-        margin=dict(l=20, r=20, t=45, b=20),
+        height=315,
+        margin=dict(l=25, r=25, t=44, b=65),
         legend=dict(
             orientation="h",
-            yanchor="bottom",
-            y=1.02,
-            xanchor="right",
-            x=1,
-            font=dict(family=FONT_FAMILY, color="#0f172a")
+            yanchor="top",
+            y=-0.24,
+            xanchor="center",
+            x=0.5,
+            font=dict(family=FONT_FAMILY, size=11, color="#0f172a"),
+            bgcolor="rgba(248, 250, 252, 0.8)",
+            bordercolor="#cbd5e1",
+            borderwidth=1
         ),
         paper_bgcolor="#ffffff",
         plot_bgcolor="#ffffff",
@@ -212,8 +219,13 @@ def build_telemetry_trend_chart(history_df: pd.DataFrame) -> go.Figure:
     fig.update_layout(
         title=dict(
             text="<b>Verification History: Anomaly Score Telemetry Stream (Past 30 Runs)</b>",
-            font=dict(color="#0b2545", size=13, family=FONT_FAMILY)
+            font=dict(color="#0b2545", size=13, family=FONT_FAMILY),
+            x=0.01,
+            y=0.96,
+            xanchor="left",
+            yanchor="top"
         ),
+        showlegend=False,
         xaxis=dict(
             title=dict(text="Verification Run ID", font=dict(color="#0f172a", family=FONT_FAMILY)),
             dtick=1,
