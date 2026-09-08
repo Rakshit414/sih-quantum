@@ -56,10 +56,17 @@ def build_threat_gauge(
 
     fig.update_layout(
         height=240,
-        margin=dict(l=20, r=20, t=40, b=20),
+        margin=dict(l=25, r=25, t=45, b=25),
         paper_bgcolor="#ffffff",
         plot_bgcolor="#ffffff",
-        font=dict(family=FONT_FAMILY)
+        font=dict(family=FONT_FAMILY, color="#0f172a"),
+        hoverlabel=dict(
+            bgcolor="#ffffff",
+            font_color="#0f172a",
+            font_size=12,
+            font_family=FONT_FAMILY,
+            bordercolor="#cbd5e1"
+        )
     )
     return fig
 
@@ -70,11 +77,16 @@ def build_outcome_distribution_chart(
 ) -> go.Figure:
     """
     Renders a grouped bar chart of expected Born rule probabilities vs empirical outcomes.
-    Clean institutional styling with no saturated highlights.
+    Clean institutional styling with light, high-contrast hover tooltips.
     """
     if not token_trials or selected_token_idx >= len(token_trials):
         fig = go.Figure()
-        fig.update_layout(title="No trial data available", font=dict(family=FONT_FAMILY))
+        fig.update_layout(
+            title="No trial data available",
+            font=dict(family=FONT_FAMILY, color="#0f172a"),
+            paper_bgcolor="#ffffff",
+            plot_bgcolor="#ffffff"
+        )
         return fig
 
     trial = token_trials[selected_token_idx]
@@ -88,19 +100,21 @@ def build_outcome_distribution_chart(
             name='Theoretical Probability (Born Rule)',
             x=categories,
             y=theoretical_pcts,
-            marker_color='#0b2545',
+            marker=dict(color='#0b2545', line=dict(color='#0b2545', width=1)),
             text=[f"{v:.1f}%" for v in theoretical_pcts],
             textposition='auto',
-            textfont=dict(family=FONT_FAMILY)
+            textfont=dict(family=FONT_FAMILY, color='#ffffff'),
+            hovertemplate="<b>%{x}</b><br>Theoretical: %{y:.1f}%<extra></extra>"
         ),
         go.Bar(
             name='Observed Empirical Outcomes',
             x=categories,
             y=observed_pcts,
-            marker_color='#64748b',
+            marker=dict(color='#ff671f', line=dict(color='#e05512', width=1)),
             text=[f"{v:.1f}% (n={n})" for v, n in zip(observed_pcts, [trial.n_match, trial.n_error])],
             textposition='auto',
-            textfont=dict(family=FONT_FAMILY)
+            textfont=dict(family=FONT_FAMILY, color='#ffffff'),
+            hovertemplate="<b>%{x}</b><br>Observed: %{y:.1f}% (%{text})<extra></extra>"
         )
     ])
 
@@ -110,14 +124,36 @@ def build_outcome_distribution_chart(
             font=dict(color="#0b2545", size=13, family=FONT_FAMILY)
         ),
         barmode='group',
-        yaxis=dict(title="Probability (%)", range=[0, 105], gridcolor="#f1f5f9", tickfont=dict(family=FONT_FAMILY)),
-        xaxis=dict(gridcolor="#f1f5f9", tickfont=dict(family=FONT_FAMILY)),
+        yaxis=dict(
+            title=dict(text="Probability (%)", font=dict(color="#0f172a", family=FONT_FAMILY)),
+            range=[0, 105],
+            gridcolor="#f1f5f9",
+            tickfont=dict(family=FONT_FAMILY, color="#0f172a")
+        ),
+        xaxis=dict(
+            gridcolor="#f1f5f9",
+            tickfont=dict(family=FONT_FAMILY, color="#0f172a")
+        ),
         height=270,
         margin=dict(l=20, r=20, t=45, b=20),
-        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1, font=dict(family=FONT_FAMILY)),
+        legend=dict(
+            orientation="h",
+            yanchor="bottom",
+            y=1.02,
+            xanchor="right",
+            x=1,
+            font=dict(family=FONT_FAMILY, color="#0f172a")
+        ),
         paper_bgcolor="#ffffff",
         plot_bgcolor="#ffffff",
-        font=dict(family=FONT_FAMILY)
+        font=dict(family=FONT_FAMILY, color="#0f172a"),
+        hoverlabel=dict(
+            bgcolor="#ffffff",
+            font_color="#0f172a",
+            font_size=12,
+            font_family=FONT_FAMILY,
+            bordercolor="#cbd5e1"
+        )
     )
     return fig
 
@@ -125,12 +161,17 @@ def build_outcome_distribution_chart(
 def build_telemetry_trend_chart(history_df: pd.DataFrame) -> go.Figure:
     """
     Renders an audit trend chart of standardized z-scores.
-    Clean institutional styling.
+    Clean institutional styling with light, high-contrast hover tooltips.
     """
     fig = go.Figure()
 
     if history_df.empty:
-        fig.update_layout(title="No verification history available.", font=dict(family=FONT_FAMILY))
+        fig.update_layout(
+            title="No verification history available.",
+            font=dict(family=FONT_FAMILY, color="#0f172a"),
+            paper_bgcolor="#ffffff",
+            plot_bgcolor="#ffffff"
+        )
         return fig
 
     df_sorted = history_df.sort_values("ID", ascending=True).tail(30)
@@ -141,25 +182,55 @@ def build_telemetry_trend_chart(history_df: pd.DataFrame) -> go.Figure:
         mode="lines+markers",
         name="Z-Score",
         line=dict(color="#0b2545", width=2),
-        marker=dict(size=7, color="#0b2545", line=dict(width=1, color="#0b2545")),
-        text=[f"Run #{r['ID']} ({r['Scenario']}): z={r['Z-Score']:.2f}" for _, r in df_sorted.iterrows()],
-        hoverinfo="text"
+        marker=dict(size=8, color="#ff671f", line=dict(width=1.5, color="#0b2545")),
+        text=[f"Run #{r['ID']} | {r['Scenario']}<br>Z-Score: {r['Z-Score']:.2f} σ<br>Verdict: {r['Verdict']}" for _, r in df_sorted.iterrows()],
+        hovertemplate="<b>%{text}</b><extra></extra>"
     ))
 
-    fig.add_hline(y=4.0, line_dash="dash", line_color="#64748b", annotation_text="Threshold z=4.0 (Critical)", annotation_position="top right", annotation_font=dict(family=FONT_FAMILY))
-    fig.add_hline(y=2.0, line_dash="dot", line_color="#94a3b8", annotation_text="Threshold z=2.0 (Suspicious)", annotation_position="top right", annotation_font=dict(family=FONT_FAMILY))
+    fig.add_hline(
+        y=4.0,
+        line_dash="dash",
+        line_color="#dc2626",
+        annotation_text="Critical Threat (z ≥ 4.0 σ)",
+        annotation_position="top right",
+        annotation_font=dict(family=FONT_FAMILY, color="#dc2626", size=10)
+    )
+    fig.add_hline(
+        y=2.0,
+        line_dash="dot",
+        line_color="#d97706",
+        annotation_text="Suspicious Drift (z ≥ 2.0 σ)",
+        annotation_position="top right",
+        annotation_font=dict(family=FONT_FAMILY, color="#d97706", size=10)
+    )
 
     fig.update_layout(
         title=dict(
-            text="<b>Verification History: Anomaly Score Telemetry Stream</b>",
+            text="<b>Verification History: Anomaly Score Telemetry Stream (Past 30 Runs)</b>",
             font=dict(color="#0b2545", size=13, family=FONT_FAMILY)
         ),
-        xaxis=dict(title="Verification Run ID", dtick=1, gridcolor="#f1f5f9", tickfont=dict(family=FONT_FAMILY)),
-        yaxis=dict(title="Standardized Z-Score", gridcolor="#f1f5f9", tickfont=dict(family=FONT_FAMILY)),
-        height=250,
+        xaxis=dict(
+            title=dict(text="Verification Run ID", font=dict(color="#0f172a", family=FONT_FAMILY)),
+            dtick=1,
+            gridcolor="#f1f5f9",
+            tickfont=dict(family=FONT_FAMILY, color="#0f172a")
+        ),
+        yaxis=dict(
+            title=dict(text="Standardized Z-Score (σ)", font=dict(color="#0f172a", family=FONT_FAMILY)),
+            gridcolor="#f1f5f9",
+            tickfont=dict(family=FONT_FAMILY, color="#0f172a")
+        ),
+        height=260,
         margin=dict(l=20, r=20, t=35, b=20),
         paper_bgcolor="#ffffff",
         plot_bgcolor="#ffffff",
-        font=dict(family=FONT_FAMILY)
+        font=dict(family=FONT_FAMILY, color="#0f172a"),
+        hoverlabel=dict(
+            bgcolor="#ffffff",
+            font_color="#0f172a",
+            font_size=12,
+            font_family=FONT_FAMILY,
+            bordercolor="#cbd5e1"
+        )
     )
     return fig

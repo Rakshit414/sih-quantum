@@ -68,83 +68,236 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Custom Lightweight CSS: Pure White Background, Orange Top Bar, Dark Blue Sub-Bar, Institutional Font
+# Custom High-Contrast Professional CSS: Light Theme, Responsive Navigation, Zero-Overlap Layout
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap');
 
-    /* Global Typography and Background */
-    html, body, [class*="css"], .stApp, p, span, div, h1, h2, h3, h4, h5, h6, input, button, select, table, th, td {
-        font-family: 'Open Sans', 'Toronto', 'Calibri', sans-serif !important;
-    }
-    
-    .stApp {
+    /* Global Typography & Canvas */
+    html, body, [class*="css"], .stApp {
+        font-family: 'Open Sans', 'Calibri', -apple-system, BlinkMacSystemFont, sans-serif !important;
         background-color: #ffffff !important;
-        color: #1e293b;
+        color: #0f172a !important;
     }
     
-    /* Primary Orange Navigation Bar */
+    /* Ensure main content container has comfortable padding */
+    .block-container {
+        padding-top: 1.5rem !important;
+        padding-bottom: 2.5rem !important;
+        max-width: 100% !important;
+    }
+
+    /* Sidebar Clean Professional Background & Contrast */
+    section[data-testid="stSidebar"] {
+        background-color: #f8fafc !important;
+        border-right: 1px solid #e2e8f0 !important;
+    }
+    section[data-testid="stSidebar"] h1, 
+    section[data-testid="stSidebar"] h2, 
+    section[data-testid="stSidebar"] h3,
+    section[data-testid="stSidebar"] label,
+    section[data-testid="stSidebar"] p {
+        color: #0f172a !important;
+    }
+
+    /* Form Input Controls - Ultra High Contrast & Visibility */
+    div[data-baseweb="input"] > div,
+    div[data-baseweb="select"] > div,
+    div[data-testid="stTextInput"] input,
+    div[data-testid="stSelectbox"] div,
+    div[data-testid="stNumberInput"] input {
+        background-color: #ffffff !important;
+        color: #0f172a !important;
+        border: 1px solid #94a3b8 !important;
+        border-radius: 4px !important;
+        font-size: 0.88rem !important;
+        font-weight: 500 !important;
+    }
+    
+    /* Input Hover - Clean light gray, NO DARK BLUE BOX */
+    div[data-baseweb="input"] > div:hover,
+    div[data-baseweb="select"] > div:hover,
+    div[data-testid="stTextInput"] input:hover,
+    div[data-testid="stSelectbox"] div:hover {
+        border-color: #ff671f !important;
+        background-color: #f8fafc !important;
+    }
+    
+    /* Input Focus - High-visibility Orange Focus Ring */
+    div[data-baseweb="input"]:focus-within > div,
+    div[data-baseweb="select"]:focus-within > div {
+        border-color: #ff671f !important;
+        box-shadow: 0 0 0 2px rgba(255, 103, 31, 0.25) !important;
+    }
+    
+    /* Dropdown Menus */
+    ul[data-baseweb="menu"] {
+        background-color: #ffffff !important;
+        border: 1px solid #cbd5e1 !important;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08) !important;
+        border-radius: 4px !important;
+    }
+    li[data-baseweb="menu-item"] {
+        color: #0f172a !important;
+        background-color: #ffffff !important;
+        font-size: 0.85rem !important;
+    }
+    li[data-baseweb="menu-item"]:hover,
+    li[data-baseweb="menu-item"][aria-selected="true"] {
+        background-color: #f1f5f9 !important;
+        color: #ff671f !important;
+        font-weight: 600 !important;
+    }
+
+    /* Primary Action Buttons */
+    button[kind="primary"],
+    button[data-testid="baseButton-primary"] {
+        background-color: #ff671f !important;
+        color: #ffffff !important;
+        font-weight: 700 !important;
+        border: none !important;
+        border-radius: 4px !important;
+        padding: 10px 18px !important;
+        letter-spacing: 0.3px !important;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.12) !important;
+        transition: all 0.15s ease-in-out !important;
+    }
+    button[kind="primary"]:hover,
+    button[data-testid="baseButton-primary"]:hover {
+        background-color: #e05512 !important;
+        box-shadow: 0 3px 8px rgba(224, 85, 18, 0.35) !important;
+    }
+
+    /* Secondary Action Buttons */
+    button[kind="secondary"],
+    button[data-testid="baseButton-secondary"] {
+        background-color: #ffffff !important;
+        color: #0b2545 !important;
+        border: 1px solid #cbd5e1 !important;
+        border-radius: 4px !important;
+        font-weight: 600 !important;
+        transition: all 0.15s ease-in-out !important;
+    }
+    button[kind="secondary"]:hover,
+    button[data-testid="baseButton-secondary"]:hover {
+        background-color: #f1f5f9 !important;
+        border-color: #ff671f !important;
+        color: #ff671f !important;
+    }
+
+    /* Streamlit Tabs Navigation */
+    div[data-baseweb="tab-list"] {
+        gap: 6px !important;
+        border-bottom: 2px solid #e2e8f0 !important;
+        padding-bottom: 2px !important;
+    }
+    button[data-baseweb="tab"] {
+        font-size: 0.85rem !important;
+        font-weight: 600 !important;
+        color: #475569 !important;
+        padding: 8px 14px !important;
+        border-radius: 4px 4px 0 0 !important;
+        background-color: transparent !important;
+        border: none !important;
+        transition: all 0.15s ease-in-out !important;
+    }
+    button[data-baseweb="tab"]:hover {
+        color: #ff671f !important;
+        background-color: #f8fafc !important;
+    }
+    button[data-baseweb="tab"][aria-selected="true"] {
+        color: #ff671f !important;
+        border-bottom: 3px solid #ff671f !important;
+        font-weight: 700 !important;
+        background-color: #fff7ed !important;
+    }
+
+    /* Streamlit Expanders */
+    div[data-testid="stExpander"] {
+        border: 1px solid #cbd5e1 !important;
+        border-radius: 4px !important;
+        background-color: #ffffff !important;
+        margin-top: 8px !important;
+    }
+    div[data-testid="stExpander"] summary {
+        font-weight: 700 !important;
+        color: #0b2545 !important;
+        font-size: 0.88rem !important;
+    }
+
+    /* Primary Orange Navigation Bar - Fully Responsive */
     .nav-orange-top {
         background-color: #ff671f;
         color: #ffffff;
-        padding: 12px 20px;
+        padding: 14px 20px;
         display: flex;
+        flex-wrap: wrap;
         justify-content: space-between;
         align-items: center;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        gap: 12px;
+        border-radius: 6px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+        margin-bottom: 8px;
     }
     
     .nav-orange-brand {
         display: flex;
+        flex-wrap: wrap;
         align-items: center;
         gap: 14px;
     }
     
     .nav-orange-brand h1 {
-        font-size: 1.35rem;
+        font-size: 1.4rem;
         font-weight: 800;
-        letter-spacing: 0.6px;
+        letter-spacing: 0.8px;
         color: #ffffff;
         margin: 0;
     }
     
     .nav-orange-brand span {
-        font-size: 0.85rem;
+        font-size: 0.9rem;
         font-weight: 500;
         color: #ffffff;
-        border-left: 1px solid rgba(255, 255, 255, 0.45);
+        border-left: 2px solid rgba(255, 255, 255, 0.5);
         padding-left: 14px;
+        line-height: 1.2;
     }
     
     .nav-orange-tag {
-        background-color: rgba(0, 0, 0, 0.18);
-        border: 1px solid rgba(255, 255, 255, 0.4);
+        background-color: rgba(0, 0, 0, 0.22);
+        border: 1px solid rgba(255, 255, 255, 0.45);
         color: #ffffff;
-        font-size: 0.72rem;
-        font-weight: 600;
-        padding: 4px 10px;
-        border-radius: 2px;
+        font-size: 0.74rem;
+        font-weight: 700;
+        padding: 5px 12px;
+        border-radius: 4px;
         letter-spacing: 0.5px;
+        white-space: nowrap;
     }
 
-    /* Extra Dark Blue Shaded Sub-Navigation Bar */
+    /* Dark Blue Sub-Navigation Bar - Fully Responsive & Zero Text Overlap */
     .nav-blue-sub {
         background-color: #0b2545;
         color: #f1f5f9;
-        padding: 8px 20px;
+        padding: 10px 20px;
         display: flex;
+        flex-wrap: wrap;
         justify-content: space-between;
         align-items: center;
-        font-size: 0.75rem;
+        gap: 12px;
+        font-size: 0.78rem;
         letter-spacing: 0.3px;
-        margin-bottom: 18px;
-        box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+        margin-bottom: 20px;
+        border-radius: 6px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.08);
     }
     
     .nav-blue-left {
         display: flex;
-        gap: 20px;
-        font-weight: 600;
+        flex-wrap: wrap;
+        gap: 16px;
+        font-weight: 500;
     }
     
     .nav-blue-left span {
@@ -153,89 +306,84 @@ st.markdown("""
     
     .nav-blue-left span b {
         color: #ffffff;
+        font-weight: 700;
     }
     
     .nav-blue-right {
         color: #94a3b8;
-        font-size: 0.72rem;
-    }
-
-    /* Clean Card Panels on White Background */
-    .panel-card {
-        background-color: #ffffff;
-        border: 1px solid #cbd5e1;
-        border-radius: 2px;
-        box-shadow: 0 1px 2px rgba(0,0,0,0.02);
-        margin-bottom: 16px;
-    }
-    
-    .panel-card-header {
-        background-color: #f8fafc;
-        border-bottom: 1px solid #cbd5e1;
-        color: #0b2545;
-        padding: 9px 14px;
-        font-size: 0.85rem;
-        font-weight: 700;
-        letter-spacing: 0.4px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-    
-    .panel-card-body {
-        padding: 14px;
+        font-size: 0.74rem;
+        white-space: nowrap;
     }
 
     /* Standard Two-Column Metrics Table */
     .metrics-table {
         width: 100%;
         border-collapse: collapse;
-        font-size: 0.82rem;
+        font-size: 0.85rem;
         margin-top: 8px;
+        margin-bottom: 8px;
     }
     
     .metrics-table th {
-        background-color: #f8fafc;
+        background-color: #f1f5f9;
         color: #0b2545;
         border: 1px solid #cbd5e1;
-        padding: 8px 10px;
+        padding: 9px 12px;
         text-align: left;
         font-weight: 700;
     }
     
     .metrics-table td {
         border: 1px solid #cbd5e1;
-        padding: 8px 10px;
-        color: #1e293b;
+        padding: 9px 12px;
+        color: #0f172a;
     }
     
     .metrics-table tr:nth-child(even) {
-        background-color: #fafbfc;
+        background-color: #f8fafc;
     }
 
-    /* Neutral Status Banner - Zero Bright Highlights */
-    .status-banner-neutral {
-        background-color: #ffffff;
-        border: 1px solid #cbd5e1;
-        border-left: 4px solid #0b2545;
-        color: #0f172a;
-        padding: 12px 14px;
-        border-radius: 2px;
-        margin-bottom: 12px;
+    /* High-Contrast Status Banners */
+    .status-banner-legit {
+        background-color: #f0fdf4;
+        border: 1px solid #86efac;
+        border-left: 5px solid #16a34a;
+        color: #14532d;
+        padding: 12px 16px;
+        border-radius: 4px;
+        margin-bottom: 14px;
+    }
+
+    .status-banner-suspicious {
+        background-color: #fffbeb;
+        border: 1px solid #fde68a;
+        border-left: 5px solid #d97706;
+        color: #78350f;
+        padding: 12px 16px;
+        border-radius: 4px;
+        margin-bottom: 14px;
+    }
+
+    .status-banner-malicious {
+        background-color: #fef2f2;
+        border: 1px solid #fca5a5;
+        border-left: 5px solid #dc2626;
+        color: #7f1d1d;
+        padding: 12px 16px;
+        border-radius: 4px;
+        margin-bottom: 14px;
     }
 
     .status-banner-title {
-        font-size: 0.98rem;
-        font-weight: 700;
-        color: #0b2545;
+        font-size: 0.96rem;
+        font-weight: 800;
         letter-spacing: 0.3px;
+        margin-bottom: 4px;
     }
 
     .status-banner-desc {
-        font-size: 0.78rem;
-        color: #475569;
-        margin-top: 4px;
-        line-height: 1.4;
+        font-size: 0.82rem;
+        line-height: 1.45;
     }
 
     /* Footer */
@@ -243,21 +391,22 @@ st.markdown("""
         background-color: #0b2545;
         color: #cbd5e1;
         border-top: 3px solid #ff671f;
-        padding: 14px 20px;
-        font-size: 0.75rem;
+        padding: 18px 20px;
+        font-size: 0.78rem;
         text-align: center;
-        margin-top: 30px;
+        margin-top: 35px;
+        border-radius: 6px;
     }
 </style>
 """, unsafe_allow_html=True)
 
 
-# 1. Primary Orange Top Navigation Bar (Zero Symbols)
+# 1. Primary Orange Top Navigation Bar (Responsive & Clean)
 st.markdown("""
 <div class="nav-orange-top">
     <div class="nav-orange-brand">
         <h1>Q-SENTINEL</h1>
-        <span>Quantum Digital Signature Cyber Threat Detection System</span>
+        <span>Quantum Digital Signature Cyber Threat Detection Watchtower</span>
     </div>
     <div class="nav-orange-tag">
         SIH-26141 ARCHITECTURE
@@ -265,14 +414,14 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# 2. Extra Dark Blue Shaded Sub-Navigation Bar (Zero Symbols)
+# 2. Extra Dark Blue Shaded Sub-Navigation Bar (Responsive & No Overlap)
 st.markdown("""
 <div class="nav-blue-sub">
     <div class="nav-blue-left">
         <span>Protocol: <b>Teleportation-Based QDS</b></span>
         <span>Detection Engine: <b>Q-STAT Exact Binomial</b></span>
         <span>Defense Inventory: <b>14 Watchtowers</b></span>
-        <span>Release Status: <b>Phase 40/40 (Production Locked)</b></span>
+        <span>Status: <b>Phase 40/40 Certified</b></span>
     </div>
     <div class="nav-blue-right">
         Simulation Link: Active | Node: Local Host | Audit: Certified
@@ -355,41 +504,56 @@ if "release_report" not in st.session_state:
     st.session_state.release_report = None
 
 
-# Sidebar: Security Controls (Zero Emojis/Symbols)
+# Sidebar: Security Controls & Operator Guide
 with st.sidebar:
     st.markdown("""
-    <div style="background-color:#0b2545; color:#ffffff; padding:8px 12px; font-weight:700; font-size:0.85rem; border-radius:2px; margin-bottom:12px;">
+    <div style="background-color:#0b2545; color:#ffffff; padding:10px 14px; font-weight:800; font-size:0.9rem; border-radius:4px; margin-bottom:12px; letter-spacing:0.5px;">
         VERIFICATION CONSOLE
+    </div>
+    
+    <div style="background:#f0fdf4; border:1px solid #86efac; border-left:4px solid #16a34a; padding:10px 12px; font-size:0.78rem; color:#14532d; border-radius:4px; margin-bottom:16px; line-height:1.5;">
+        <b>OPERATOR QUICK GUIDE:</b><br>
+        1. Set <b>Signer Identity</b> (Alice=Legit, Mallory=Intruder).<br>
+        2. Select an <b>Evaluation Scenario</b> below.<br>
+        3. Click the orange <b>Verify Signature</b> button.<br>
+        4. Inspect real-time telemetry and 14 watchtowers.
     </div>
     """, unsafe_allow_html=True)
     
+    st.markdown("**1. Transaction Payload**")
     message_input = st.text_input(
         "Message Payload",
         value="Authorize Wire Transfer #98234 - $500,000",
-        help="Classical text payload authenticated via teleported quantum states."
+        help="Classical transaction text authenticated via teleported quantum Pauli states.",
+        label_visibility="collapsed"
     )
+    st.caption("Classical text hashed to SHA-256 and mapped to quantum eigenstates.")
     
+    st.markdown("**2. Claimed Signer Identity**")
     signer_choice = st.selectbox(
         "Claimed Signer Identity",
         options=[
             "Alice (Legitimate Authority)",
             "Bob (Authorized Deputy)",
             "Mallory (Adversary Impersonator)"
-        ]
+        ],
+        label_visibility="collapsed"
     )
     signer_id = signer_choice.split(" ")[0]
+    st.caption("Select who claims to have signed this message.")
     
     # Check quarantine status
     if st.session_state.mitigation_orchestrator.is_quarantined(signer_id):
         st.markdown(f"""
-        <div style="background:#ffffff; border:1px solid #cbd5e1; border-left:3px solid #0b2545; padding:6px 10px; font-size:0.75rem; margin-bottom:8px;">
-            <b>Administrative Notice:</b> Signer '{signer_id}' is currently under security quarantine.
+        <div style="background:#fef2f2; border:1px solid #fca5a5; border-left:4px solid #dc2626; padding:8px 12px; font-size:0.78rem; color:#991b1b; border-radius:4px; margin-bottom:10px;">
+            ⚠️ <b>Administrative Notice:</b> Signer '{signer_id}' is currently under security quarantine due to past detected anomalies.
         </div>
         """, unsafe_allow_html=True)
         if st.button(f"Release Quarantine for {signer_id}", use_container_width=True):
             st.session_state.mitigation_orchestrator.release_quarantine(signer_id)
             st.rerun()
 
+    st.markdown("**3. Evaluation Threat Scenario**")
     scenario_option = st.selectbox(
         "Evaluation Scenario",
         options=[
@@ -398,20 +562,26 @@ with st.sidebar:
             "3. Signer Impersonation (Key Mismatch)",
             "4. Replay Attack (Stale Classical Token)",
             "5. Quantum Channel Manipulation (Noise / Flips)"
-        ]
+        ],
+        label_visibility="collapsed"
     )
     
     # Map scenario
     if "1. Legitimate" in scenario_option:
         scenario = AttackScenario.LEGITIMATE
+        st.caption("Clean channel: states match Alice's private key within nominal noise (~3%).")
     elif "2. Signature Forgery" in scenario_option:
         scenario = AttackScenario.FORGERY
+        st.caption("Adversary Eve fabricates signature states (yields ~50% error rate).")
     elif "3. Signer Impersonation" in scenario_option:
         scenario = AttackScenario.IMPERSONATION
+        st.caption("Mallory signs using her own key, claiming Alice's identity (>18% error).")
     elif "4. Replay" in scenario_option:
         scenario = AttackScenario.REPLAY
+        st.caption("Attacker re-injects stale valid session; intercepted by Freshness Registry.")
     else:
         scenario = AttackScenario.CHANNEL_NOISE
+        st.caption("Injects active quantum phase/bit-flip noise into the fiber.")
         
     noise_slider = 0.0
     if scenario == AttackScenario.CHANNEL_NOISE:
@@ -425,15 +595,15 @@ with st.sidebar:
         )
         
     st.markdown("""
-    <div style="background-color:#f8fafc; border:1px solid #cbd5e1; padding:6px 10px; font-weight:700; font-size:0.75rem; color:#0b2545; margin-top:12px; margin-bottom:8px;">
-        QUANTUM PARAMETERS & AUTO-CALIBRATION
+    <div style="background-color:#f1f5f9; border:1px solid #cbd5e1; padding:6px 10px; font-weight:700; font-size:0.75rem; color:#0b2545; border-radius:4px; margin-top:14px; margin-bottom:8px;">
+        QUANTUM ENGINE PARAMETERS
     </div>
     """, unsafe_allow_html=True)
     
     use_auto_calibration = st.checkbox(
         "Dynamic Noise Calibration (Q-CALIBRATE)",
         value=True,
-        help="Continuously calibrates channel noise floor p0 from pilot reference frames."
+        help="Continuously calibrates channel noise floor p0 from pilot reference frames using EMA (alpha=0.25)."
     )
     
     trials_per_token = st.slider(
@@ -442,7 +612,7 @@ with st.sidebar:
         max_value=150,
         value=50,
         step=10,
-        help="Repeated projective measurement trials per signature token."
+        help="Repeated projective measurement trials per signature token. Higher trials narrow the confidence interval."
     )
     
     if not use_auto_calibration:
@@ -462,9 +632,9 @@ with st.sidebar:
         )
         ambient_noise_p0 = cal_status.calibrated_p0
         st.markdown(f"""
-        <div style="background:#ffffff; border:1px solid #cbd5e1; padding:6px 8px; font-size:0.75rem; color:#1e293b; margin-bottom:8px;">
+        <div style="background:#ffffff; border:1px solid #cbd5e1; padding:8px 10px; font-size:0.78rem; color:#0f172a; border-radius:4px; margin-bottom:8px;">
             <b>Q-CALIBRATE Baseline:</b> {ambient_noise_p0*100:.2f}%<br>
-            <span style="color:#64748b; font-size:0.7rem;">95% CI: [{cal_status.confidence_interval_95[0]*100:.1f}%, {cal_status.confidence_interval_95[1]*100:.1f}%]</span>
+            <span style="color:#64748b; font-size:0.72rem;">95% CI: [{cal_status.confidence_interval_95[0]*100:.1f}%, {cal_status.confidence_interval_95[1]*100:.1f}%]</span>
         </div>
         """, unsafe_allow_html=True)
     
@@ -604,190 +774,187 @@ incident_report: IncidentReport = st.session_state.last_incident_report
 col_left, col_right = st.columns([1.1, 0.9], gap="medium")
 
 with col_left:
-    st.markdown("""
-    <div class="panel-card">
-        <div class="panel-card-header">
-            <span>QUANTUM CHANNEL AND TELEPORTATION FLOW</span>
-            <span style="font-size:0.75rem; font-weight:500;">Protocol: 3-Qubit Joint BSM</span>
+    with st.container(border=True):
+        st.markdown("""
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; margin-bottom: 12px;">
+            <span style="font-weight: 800; color: #0b2545; font-size: 0.92rem; letter-spacing: 0.4px;">QUANTUM CHANNEL & TELEPORTATION FLOW</span>
+            <span style="background: #f1f5f9; color: #475569; font-weight: 700; font-size: 0.72rem; padding: 3px 8px; border-radius: 4px; border: 1px solid #cbd5e1;">Protocol: 3-Qubit Joint BSM</span>
         </div>
-    """, unsafe_allow_html=True)
-    
-    scenario_info = st.session_state.last_scenario_info
-    st.caption(f"**Execution Context:** {scenario_info}")
-    
-    # Teleportation Pipeline Schematic
-    if rx_sig and rx_sig.tokens:
-        tok0 = rx_sig.tokens[0]
-        tele_res = teleport_qubit(tok0.eigenstate)
-        b1, b2 = tele_res.bell_measurement_bits
-        u_corr = tele_res.applied_correction
+        """, unsafe_allow_html=True)
         
-        status_hex = "#0b2545"
+        scenario_info = st.session_state.last_scenario_info
+        st.caption(f"**Execution Context:** {scenario_info}")
         
-        verifier_label = "Bob" if rx_sig.signer_id.lower() != "bob" else "Charlie"
-        pipeline_html = render_teleportation_pipeline_html(
-            input_state_label=tok0.eigenstate.label,
-            bell_bits=(b1, b2),
-            correction_gate=u_corr,
-            recovered_label=tele_res.recovered_state.label,
-            status_color=status_hex,
-            attack_applied=scenario_info if "disturbed" in scenario_info or "forged" in scenario_info or "unauthorized" in scenario_info else None,
-            signer_name=rx_sig.signer_id,
-            verifier_name=verifier_label
-        )
-        if hasattr(st, "html"):
-            st.html(pipeline_html)
-        else:
-            st.markdown(pipeline_html, unsafe_allow_html=True)
-        
-    # Projective Measurement Distribution Chart
-    if assessment and assessment.token_trials:
-        selected_token_idx = st.selectbox(
-            "Inspect Signature Qubit Token:",
-            options=list(range(len(assessment.token_trials))),
-            format_func=lambda i: f"Token #{i} (Basis: {rx_sig.tokens[i].basis.value}, State: {rx_sig.tokens[i].eigenstate.label})"
-        )
-        fig_dist = build_outcome_distribution_chart(assessment.token_trials, selected_token_idx)
-        st.plotly_chart(fig_dist, use_container_width=True)
-
-        # Phase 28: Quantum State Tomography (QST) Diagnostics
-        with st.expander("Quantum State Tomography (QST) and Density Matrix Reconstruction", expanded=False):
-            st.caption("Reconstructs the full 2x2 density matrix via Pauli Stokes projections (X, Y, Z) to differentiate environmental decoherence from active eavesdropping.")
+        # Teleportation Pipeline Schematic
+        if rx_sig and rx_sig.tokens:
+            tok0 = rx_sig.tokens[0]
+            tele_res = teleport_qubit(tok0.eigenstate)
+            b1, b2 = tele_res.bell_measurement_bits
+            u_corr = tele_res.applied_correction
             
-            chosen_token = rx_sig.tokens[selected_token_idx]
-            expected_token = legit_sig.tokens[selected_token_idx]
-            qst_res = QuantumStateTomography.reconstruct_state(
-                target_state=chosen_token.eigenstate,
-                expected_state=expected_token.eigenstate,
-                num_trials_per_basis=250
+            status_hex = "#0b2545"
+            
+            verifier_label = "Bob" if rx_sig.signer_id.lower() != "bob" else "Charlie"
+            pipeline_html = render_teleportation_pipeline_html(
+                input_state_label=tok0.eigenstate.label,
+                bell_bits=(b1, b2),
+                correction_gate=u_corr,
+                recovered_label=tele_res.recovered_state.label,
+                status_color=status_hex,
+                attack_applied=scenario_info if "disturbed" in scenario_info or "forged" in scenario_info or "unauthorized" in scenario_info else None,
+                signer_name=rx_sig.signer_id,
+                verifier_name=verifier_label
             )
+            if hasattr(st, "html"):
+                st.html(pipeline_html)
+            else:
+                st.markdown(pipeline_html, unsafe_allow_html=True)
             
-            rho_00 = qst_res.density_matrix[0, 0].real
-            rho_01 = qst_res.density_matrix[0, 1]
-            rho_10 = qst_res.density_matrix[1, 0]
-            rho_11 = qst_res.density_matrix[1, 1]
-            
-            st.markdown(f"""
-            <table class="metrics-table">
-                <tr><th>Tomography Metric</th><th>Value</th><th>Physical Significance</th></tr>
-                <tr><td>Reconstructed Density Matrix (rho)</td><td><code>[[{rho_00:.3f}, {rho_01.real:.3f}+{rho_01.imag:.3f}j], [{rho_10.real:.3f}+{rho_10.imag:.3f}j, {rho_11:.3f}]]</code></td><td>Unit-trace positive semi-definite state</td></tr>
-                <tr><td>Quantum State Fidelity F(rho_exp, rho_rec)</td><td><b>{qst_res.fidelity * 100:.2f}%</b></td><td>Overlap with authorized signature eigenstate</td></tr>
-                <tr><td>State Purity gamma = Tr(rho^2)</td><td><b>{qst_res.purity:.4f}</b> (Pure=1.0, Mixed=0.5)</td><td>Distinguishes coherent state from thermal noise</td></tr>
-                <tr><td>Von Neumann Entropy S(rho)</td><td><b>{qst_res.von_neumann_entropy:.4f} bits</b></td><td>Quantum information mixedness / uncertainty</td></tr>
-                <tr><td>Bloch Vector (S1, S2, S3)</td><td>({qst_res.stokes_parameters[0]:.2f}, {qst_res.stokes_parameters[1]:.2f}, {qst_res.stokes_parameters[2]:.2f})</td><td>Stokes coordinates on Bloch sphere</td></tr>
-            </table>
-            <div style="background:#f8fafc; border:1px solid #cbd5e1; padding:8px 10px; font-size:0.75rem; color:#334155; margin-top:8px;">
-                <b>Tomographic Diagnostic:</b> {qst_res.diagnostic}
-            </div>
-            """, unsafe_allow_html=True)
+        # Projective Measurement Distribution Chart
+        if assessment and assessment.token_trials:
+            selected_token_idx = st.selectbox(
+                "Inspect Signature Qubit Token:",
+                options=list(range(len(assessment.token_trials))),
+                format_func=lambda i: f"Token #{i} (Basis: {rx_sig.tokens[i].basis.value}, State: {rx_sig.tokens[i].eigenstate.label})"
+            )
+            fig_dist = build_outcome_distribution_chart(assessment.token_trials, selected_token_idx)
+            st.plotly_chart(fig_dist, use_container_width=True)
 
-    st.markdown("</div>", unsafe_allow_html=True)
+            # Phase 28: Quantum State Tomography (QST) Diagnostics
+            with st.expander("Quantum State Tomography (QST) and Density Matrix Reconstruction", expanded=False):
+                st.caption("Reconstructs the full 2x2 density matrix via Pauli Stokes projections (X, Y, Z) to differentiate environmental decoherence from active eavesdropping.")
+                
+                chosen_token = rx_sig.tokens[selected_token_idx]
+                expected_token = legit_sig.tokens[selected_token_idx]
+                qst_res = QuantumStateTomography.reconstruct_state(
+                    target_state=chosen_token.eigenstate,
+                    expected_state=expected_token.eigenstate,
+                    num_trials_per_basis=250
+                )
+                
+                rho_00 = qst_res.density_matrix[0, 0].real
+                rho_01 = qst_res.density_matrix[0, 1]
+                rho_10 = qst_res.density_matrix[1, 0]
+                rho_11 = qst_res.density_matrix[1, 1]
+                
+                st.markdown(f"""
+                <table class="metrics-table">
+                    <tr><th>Tomography Metric</th><th>Value</th><th>Physical Significance</th></tr>
+                    <tr><td>Reconstructed Density Matrix (rho)</td><td><code>[[{rho_00:.3f}, {rho_01.real:.3f}+{rho_01.imag:.3f}j], [{rho_10.real:.3f}+{rho_10.imag:.3f}j, {rho_11:.3f}]]</code></td><td>Unit-trace positive semi-definite state</td></tr>
+                    <tr><td>Quantum State Fidelity F(rho_exp, rho_rec)</td><td><b>{qst_res.fidelity * 100:.2f}%</b></td><td>Overlap with authorized signature eigenstate</td></tr>
+                    <tr><td>State Purity gamma = Tr(rho^2)</td><td><b>{qst_res.purity:.4f}</b> (Pure=1.0, Mixed=0.5)</td><td>Distinguishes coherent state from thermal noise</td></tr>
+                    <tr><td>Von Neumann Entropy S(rho)</td><td><b>{qst_res.von_neumann_entropy:.4f} bits</b></td><td>Quantum information mixedness / uncertainty</td></tr>
+                    <tr><td>Bloch Vector (S1, S2, S3)</td><td>({qst_res.stokes_parameters[0]:.2f}, {qst_res.stokes_parameters[1]:.2f}, {qst_res.stokes_parameters[2]:.2f})</td><td>Stokes coordinates on Bloch sphere</td></tr>
+                </table>
+                <div style="background:#f8fafc; border:1px solid #cbd5e1; padding:8px 10px; font-size:0.75rem; color:#334155; margin-top:8px;">
+                    <b>Tomographic Diagnostic:</b> {qst_res.diagnostic}
+                </div>
+                """, unsafe_allow_html=True)
 
 
 with col_right:
-    st.markdown("""
-    <div class="panel-card">
-        <div class="panel-card-header">
-            <span>Q-STAT THREAT ASSESSMENT SCORECARD</span>
-            <span style="font-size:0.75rem; font-weight:500;">Exact Binomial Test</span>
-        </div>
-        <div class="panel-card-body">
-    """, unsafe_allow_html=True)
-    
-    # Neutral Status Banner - Zero Bright Highlights or Saturated Colors
-    if assessment.verdict == ThreatCategory.LEGITIMATE:
+    with st.container(border=True):
         st.markdown("""
-        <div class="status-banner-neutral">
-            <div class="status-banner-title">STATUS: DETERMINISTICALLY AUTHENTIC (LEGITIMATE)</div>
-            <div class="status-banner-desc">
-                Signature verified. Observed error rate is within expected environmental noise bounds (95.4% confidence).
-            </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; margin-bottom: 12px;">
+            <span style="font-weight: 800; color: #0b2545; font-size: 0.92rem; letter-spacing: 0.4px;">Q-STAT THREAT ASSESSMENT SCORECARD</span>
+            <span style="background: #f1f5f9; color: #475569; font-weight: 700; font-size: 0.72rem; padding: 3px 8px; border-radius: 4px; border: 1px solid #cbd5e1;">Exact Binomial Test</span>
         </div>
         """, unsafe_allow_html=True)
-    elif assessment.verdict == ThreatCategory.SUSPICIOUS:
-        st.markdown("""
-        <div class="status-banner-neutral">
-            <div class="status-banner-title">STATUS: SUSPICIOUS CHANNEL DISTURBANCE</div>
-            <div class="status-banner-desc">
-                Observed error rate exceeds 2-sigma baseline threshold. Potential low-intensity tampering or channel decay.
+        
+        # High-Contrast Status Banner
+        if assessment.verdict == ThreatCategory.LEGITIMATE:
+            st.markdown("""
+            <div class="status-banner-legit">
+                <div class="status-banner-title">STATUS: DETERMINISTICALLY AUTHENTIC (LEGITIMATE)</div>
+                <div class="status-banner-desc">
+                    Signature verified. Observed error rate is within expected environmental noise bounds (95.4% confidence).
+                </div>
             </div>
+            """, unsafe_allow_html=True)
+        elif assessment.verdict == ThreatCategory.SUSPICIOUS:
+            st.markdown("""
+            <div class="status-banner-suspicious">
+                <div class="status-banner-title">STATUS: SUSPICIOUS CHANNEL DISTURBANCE</div>
+                <div class="status-banner-desc">
+                    Observed error rate exceeds 2-sigma baseline threshold. Potential low-intensity tampering or channel decay.
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+        else:
+            st.markdown("""
+            <div class="status-banner-malicious">
+                <div class="status-banner-title">STATUS: REJECTED & CRITICAL THREAT DETECTED</div>
+                <div class="status-banner-desc">
+                    Signature rejected. Forgery, unauthorized impersonation, or replay attack detected with greater than 99.99% certainty.
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+
+        # Standardized Anomaly Gauge Chart
+        fig_gauge = build_threat_gauge(assessment.z_score, z_suspicious=2.0, z_malicious=4.0)
+        st.plotly_chart(fig_gauge, use_container_width=True)
+
+        # Metrics Table
+        p_val_disp = "< 1e-15" if assessment.p_value < 1e-15 else f"{assessment.p_value:.4e}"
+        freshness_badge = "VALID / FRESH" if assessment.freshness_passed else "STALE / REPLAY"
+        
+        st.markdown(f"""
+        <table class="metrics-table">
+            <tr>
+                <th>Parameter</th>
+                <th>Observed Value</th>
+            </tr>
+            <tr>
+                <td>Claimed Signer</td>
+                <td><b>{rx_sig.signer_id}</b></td>
+            </tr>
+            <tr>
+                <td>Observed Error Rate (e_hat)</td>
+                <td><b>{assessment.error_rate * 100:.2f}%</b> (Baseline p0 = {assessment.baseline_noise_p0 * 100:.1f}%)</td>
+            </tr>
+            <tr>
+                <td>Standardized Z-Score</td>
+                <td><b>{assessment.z_score:+.2f} sigma</b></td>
+            </tr>
+            <tr>
+                <td>Exact Binomial p-value</td>
+                <td><code>{p_val_disp}</code></td>
+            </tr>
+            <tr>
+                <td>Statistical Confidence</td>
+                <td><b>{assessment.confidence * 100:.2f}%</b></td>
+            </tr>
+            <tr>
+                <td>95% Confidence Interval</td>
+                <td>[{assessment.ci_lower*100:.1f}%, {assessment.ci_upper*100:.1f}%]</td>
+            </tr>
+            <tr>
+                <td>Freshness Nonce Token</td>
+                <td><b>{freshness_badge}</b></td>
+            </tr>
+            <tr>
+                <td>Detection Latency</td>
+                <td><b>{st.session_state.last_latency_ms:.2f} ms</b></td>
+            </tr>
+        </table>
+        
+        <div style="background-color: #f8fafc; border: 1px solid #cbd5e1; padding: 8px 10px; font-size: 0.75rem; color: #334155; margin-top: 10px; border-radius: 4px;">
+            <b>Audit Diagnostic:</b> {assessment.diagnostic_text}
         </div>
         """, unsafe_allow_html=True)
-    else:
-        st.markdown("""
-        <div class="status-banner-neutral">
-            <div class="status-banner-title">STATUS: REJECTED AND CRITICAL THREAT DETECTED</div>
-            <div class="status-banner-desc">
-                Signature rejected. Forgery, unauthorized impersonation, or replay attack detected with greater than 99.99% certainty.
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-
-    # Standardized Anomaly Gauge Chart
-    fig_gauge = build_threat_gauge(assessment.z_score, z_suspicious=2.0, z_malicious=4.0)
-    st.plotly_chart(fig_gauge, use_container_width=True)
-
-    # Metrics Table
-    p_val_disp = "< 1e-15" if assessment.p_value < 1e-15 else f"{assessment.p_value:.4e}"
-    freshness_badge = "VALID / FRESH" if assessment.freshness_passed else "STALE / REPLAY"
-    
-    st.markdown(f"""
-    <table class="metrics-table">
-        <tr>
-            <th>Parameter</th>
-            <th>Observed Value</th>
-        </tr>
-        <tr>
-            <td>Claimed Signer</td>
-            <td><b>{rx_sig.signer_id}</b></td>
-        </tr>
-        <tr>
-            <td>Observed Error Rate (e_hat)</td>
-            <td><b>{assessment.error_rate * 100:.2f}%</b> (Baseline p0 = {assessment.baseline_noise_p0 * 100:.1f}%)</td>
-        </tr>
-        <tr>
-            <td>Standardized Z-Score</td>
-            <td><b>{assessment.z_score:+.2f} sigma</b></td>
-        </tr>
-        <tr>
-            <td>Exact Binomial p-value</td>
-            <td><code>{p_val_disp}</code></td>
-        </tr>
-        <tr>
-            <td>Statistical Confidence</td>
-            <td><b>{assessment.confidence * 100:.2f}%</b></td>
-        </tr>
-        <tr>
-            <td>95% Confidence Interval</td>
-            <td>[{assessment.ci_lower*100:.1f}%, {assessment.ci_upper*100:.1f}%]</td>
-        </tr>
-        <tr>
-            <td>Freshness Nonce Token</td>
-            <td><b>{freshness_badge}</b></td>
-        </tr>
-        <tr>
-            <td>Detection Latency</td>
-            <td><b>{st.session_state.last_latency_ms:.2f} ms</b></td>
-        </tr>
-    </table>
-    
-    <div style="background-color: #f8fafc; border: 1px solid #cbd5e1; padding: 8px 10px; font-size: 0.75rem; color: #334155; margin-top: 10px;">
-        <b>Audit Diagnostic:</b> {assessment.diagnostic_text}
-    </div>
-    """, unsafe_allow_html=True)
-
-    st.markdown("</div></div>", unsafe_allow_html=True)
 
 
 # Bottom Panel: Telemetry Stream & Audit Trail
-st.markdown("""
-<div class="panel-card">
-    <div class="panel-card-header">
-        <span>AUDIT TELEMETRY LOG AND VERIFICATION HISTORY</span>
-        <span style="font-size:0.75rem; font-weight:500;">Storage: SQLite Local Datastore</span>
+with st.container(border=True):
+    st.markdown("""
+    <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; margin-bottom: 14px; gap: 8px;">
+        <div>
+            <span style="font-weight: 800; color: #0b2545; font-size: 0.96rem; letter-spacing: 0.4px;">AUDIT TELEMETRY LOG & VERIFICATION HISTORY</span>
+            <div style="color: #64748b; font-size: 0.78rem; margin-top: 2px;">Live monitoring across all 14 physical watchtowers, SQLite persistence, and enterprise SOC SIEM exports.</div>
+        </div>
+        <span style="background: #f1f5f9; color: #475569; font-weight: 700; font-size: 0.74rem; padding: 4px 10px; border-radius: 4px; border: 1px solid #cbd5e1;">Storage: SQLite Local Datastore</span>
     </div>
-    <div class="panel-card-body">
-""", unsafe_allow_html=True)
+    """, unsafe_allow_html=True)
 
 history_df = st.session_state.telemetry_store.get_dataframe(limit=50)
 
@@ -810,10 +977,14 @@ tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9, tab10, tab11, tab12, tab13
 ])
 
 with tab1:
+    st.markdown("#### Real-Time Telemetry Anomaly Trend (Z-Score Trajectory)")
+    st.caption("Tracks the statistical anomaly trajectory across historical quantum verification events. The red dashed line denotes the critical 3.00-sigma threat threshold.")
     fig_trend = build_telemetry_trend_chart(history_df)
     st.plotly_chart(fig_trend, use_container_width=True)
 
 with tab2:
+    st.markdown("#### Detailed Telemetry Verification Log")
+    st.caption("Complete tabular audit log of all QDS verification runs, error rates, threat verdicts, and cryptographic proofs stored in the local SQLite datastore.")
     if not history_df.empty:
         st.dataframe(
             history_df,
@@ -1865,8 +2036,6 @@ with tab15:
                 mime="text/markdown",
                 use_container_width=True
             )
-
-st.markdown("</div></div>", unsafe_allow_html=True)
 
 
 # Clean Footer (Zero Emojis/Symbols)

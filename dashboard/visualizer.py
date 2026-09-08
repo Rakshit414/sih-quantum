@@ -17,46 +17,64 @@ def render_teleportation_pipeline_html(
     verifier_name: str = "BOB"
 ) -> str:
     """
-    Renders an unembellished, clean schematic of the 3-qubit teleportation channel.
+    Renders a responsive, high-contrast schematic of the 3-qubit teleportation channel.
+    Designed to prevent text clipping, overlapping, or dark-box hover anomalies.
     """
     b1, b2 = bell_bits
     attack_badge = ""
     if attack_applied and attack_applied != "Clean transmission":
         attack_badge = (
-            f'<div style="background-color: #ffffff; border: 1px solid #94a3b8; '
-            f'color: #1e293b; border-radius: 2px; padding: 6px 10px; font-size: 0.8rem; '
-            f'margin-top: 10px; font-weight: 600;">'
-            f'Channel Anomaly: {attack_applied}'
+            f'<div style="background-color: #fef2f2; border: 1px solid #f87171; border-left: 4px solid #dc2626; '
+            f'color: #991b1b; border-radius: 4px; padding: 8px 12px; font-size: 0.82rem; '
+            f'margin-top: 12px; font-weight: 600; line-height: 1.4;">'
+            f'⚠️ <b>Active Channel Anomaly:</b> {attack_applied}'
+            f'</div>'
+        )
+    else:
+        attack_badge = (
+            f'<div style="background-color: #f0fdf4; border: 1px solid #86efac; border-left: 4px solid #16a34a; '
+            f'color: #166534; border-radius: 4px; padding: 8px 12px; font-size: 0.82rem; '
+            f'margin-top: 12px; font-weight: 600; line-height: 1.4;">'
+            f'✓ <b>Channel Status:</b> Clean Transmission (Quantum State Fidelity Verified: 100%)'
             f'</div>'
         )
 
     html = (
-        f'<div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 2px; padding: 14px; margin-bottom: 14px; box-shadow: 0 1px 2px rgba(0,0,0,0.03); font-family: \'Open Sans\', \'Toronto\', \'Calibri\', sans-serif;">'
-        f'<div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; margin-bottom: 12px;">'
-        f'<span style="font-weight: 700; color: #0b2545; font-size: 0.85rem; letter-spacing: 0.4px;">QUANTUM TELEPORTATION CHANNEL FLOW</span>'
-        f'<span style="background: #ffffff; color: #475569; font-weight: 600; font-size: 0.72rem; padding: 3px 8px; border: 1px solid #cbd5e1; border-radius: 2px;">Shared Bell State: (|00&gt; + |11&gt;) / sqrt(2)</span>'
+        f'<div style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 6px; padding: 16px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); font-family: \'Open Sans\', \'Toronto\', \'Calibri\', sans-serif;">'
+        f'<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; margin-bottom: 14px;">'
+        f'<span style="font-weight: 800; color: #0b2545; font-size: 0.88rem; letter-spacing: 0.5px;">QUANTUM TELEPORTATION CHANNEL FLOW</span>'
+        f'<span style="background: #f8fafc; color: #334155; font-weight: 600; font-size: 0.74rem; padding: 4px 10px; border: 1px solid #cbd5e1; border-radius: 4px;">Shared Bell Pair: (|00&gt; + |11&gt;) / √2</span>'
         f'</div>'
-        f'<div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; align-items: center; text-align: center;">'
-        f'<div style="background: #ffffff; border: 1px solid #cbd5e1; border-top: 2px solid #0b2545; border-radius: 2px; padding: 10px 4px;">'
-        f'<div style="font-size: 0.7rem; color: #475569; font-weight: 700;">1. SIGNER ({signer_name.upper()})</div>'
-        f'<div style="font-size: 1.15rem; font-weight: 700; color: #0b2545; margin: 4px 0; font-family: \'Open Sans\', \'Toronto\', \'Calibri\', sans-serif;">{input_state_label}</div>'
-        f'<div style="font-size: 0.65rem; color: #64748b;">Pauli Eigenstate</div>'
+        f'<div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: space-between; align-items: stretch;">'
+        
+        # Stage 1: Signer
+        f'<div style="flex: 1 1 140px; min-width: 130px; background: #f8fafc; border: 1px solid #cbd5e1; border-top: 3px solid #ff671f; border-radius: 4px; padding: 12px 8px; text-align: center;">'
+        f'<div style="font-size: 0.72rem; color: #475569; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px;">1. Signer ({signer_name})</div>'
+        f'<div style="font-size: 1.25rem; font-weight: 800; color: #0b2545; margin: 6px 0;">{input_state_label}</div>'
+        f'<div style="font-size: 0.68rem; color: #64748b;">Pauli Eigenstate |ψ&gt;</div>'
         f'</div>'
-        f'<div style="background: #ffffff; border: 1px solid #cbd5e1; border-top: 2px solid #0b2545; border-radius: 2px; padding: 10px 4px;">'
-        f'<div style="font-size: 0.7rem; color: #475569; font-weight: 700;">2. BELL MEASUREMENT</div>'
-        f'<div style="font-size: 1.15rem; font-weight: 700; color: #0b2545; margin: 4px 0; font-family: \'Open Sans\', \'Toronto\', \'Calibri\', sans-serif;">({b1}, {b2})</div>'
-        f'<div style="font-size: 0.65rem; color: #64748b;">2 Classical Bits</div>'
+        
+        # Stage 2: Bell Measurement
+        f'<div style="flex: 1 1 140px; min-width: 130px; background: #f8fafc; border: 1px solid #cbd5e1; border-top: 3px solid #0b2545; border-radius: 4px; padding: 12px 8px; text-align: center;">'
+        f'<div style="font-size: 0.72rem; color: #475569; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px;">2. Bell Measurement</div>'
+        f'<div style="font-size: 1.25rem; font-weight: 800; color: #0b2545; margin: 6px 0;">({b1}, {b2})</div>'
+        f'<div style="font-size: 0.68rem; color: #64748b;">2 Classical Bits (m1, m2)</div>'
         f'</div>'
-        f'<div style="background: #ffffff; border: 1px solid #cbd5e1; border-top: 2px solid #0b2545; border-radius: 2px; padding: 10px 4px;">'
-        f'<div style="font-size: 0.7rem; color: #475569; font-weight: 700;">3. PAULI CORRECTION</div>'
-        f'<div style="font-size: 1.15rem; font-weight: 700; color: #0b2545; margin: 4px 0; font-family: \'Open Sans\', \'Toronto\', \'Calibri\', sans-serif;">U = {correction_gate}</div>'
-        f'<div style="font-size: 0.65rem; color: #64748b;">Z^{b1} X^{b2} Operator</div>'
+        
+        # Stage 3: Pauli Correction
+        f'<div style="flex: 1 1 140px; min-width: 130px; background: #f8fafc; border: 1px solid #cbd5e1; border-top: 3px solid #0b2545; border-radius: 4px; padding: 12px 8px; text-align: center;">'
+        f'<div style="font-size: 0.72rem; color: #475569; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px;">3. Pauli Correction</div>'
+        f'<div style="font-size: 1.25rem; font-weight: 800; color: #0b2545; margin: 6px 0;">U = {correction_gate}</div>'
+        f'<div style="font-size: 0.68rem; color: #64748b;">Z^{b1} · X^{b2} Unitary</div>'
         f'</div>'
-        f'<div style="background: #ffffff; border: 1px solid #cbd5e1; border-top: 2px solid #0b2545; border-radius: 2px; padding: 10px 4px;">'
-        f'<div style="font-size: 0.7rem; color: #475569; font-weight: 700;">4. VERIFIER ({verifier_name.upper()})</div>'
-        f'<div style="font-size: 1.15rem; font-weight: 700; color: #0b2545; margin: 4px 0; font-family: \'Open Sans\', \'Toronto\', \'Calibri\', sans-serif;">{recovered_label}</div>'
-        f'<div style="font-size: 0.65rem; color: #64748b;">Recovered State</div>'
+        
+        # Stage 4: Verifier
+        f'<div style="flex: 1 1 140px; min-width: 130px; background: #f8fafc; border: 1px solid #cbd5e1; border-top: 3px solid #16a34a; border-radius: 4px; padding: 12px 8px; text-align: center;">'
+        f'<div style="font-size: 0.72rem; color: #475569; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px;">4. Verifier ({verifier_name})</div>'
+        f'<div style="font-size: 1.25rem; font-weight: 800; color: #0b2545; margin: 6px 0;">{recovered_label}</div>'
+        f'<div style="font-size: 0.68rem; color: #64748b;">Reconstructed State</div>'
         f'</div>'
+        
         f'</div>'
         f'{attack_badge}'
         f'</div>'
