@@ -404,6 +404,15 @@ st.markdown("""
         line-height: 1.45;
     }
 
+    /* Quantum Pipeline Grid (Strict 2x2 symmetry on desktop and tablet) */
+    .quantum-pipeline-grid {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 12px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
     /* Mobile Responsive Optimizations */
     @media (max-width: 768px) {
         .block-container {
@@ -509,9 +518,10 @@ st.markdown("""
         }
     }
 
-    @media (max-width: 420px) {
+    @media (max-width: 480px) {
         .quantum-pipeline-grid {
             grid-template-columns: 1fr !important;
+            gap: 10px !important;
         }
     }
 </style>

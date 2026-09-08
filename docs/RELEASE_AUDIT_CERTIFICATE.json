@@ -1,5 +1,5 @@
 {
-  "audit_id": "AUDIT-SIH26141-1788859957",
+  "audit_id": "AUDIT-SIH26141-1788860469",
   "framework_edition": "Q-Sentinel 1.0.0 Enterprise Defense Edition",
   "sih_problem_id": "SIH-26141",
   "total_phases_verified": 40,
@@ -8,8 +8,8 @@
   "failed_inspections": 0,
   "audit_pass_rate": 1.0,
   "release_frozen": true,
-  "integrity_hash_sha256": "7d080d55183f206a38343a74242300d11c93c100a4e65b69c8e0bf1105f7c8c1",
-  "timestamp": "2026-09-08 09:32:37 UTC",
+  "integrity_hash_sha256": "6a854cfaeb3081c6731333e63333231b0e177d14125f52cb87f8beb132a407a8",
+  "timestamp": "2026-09-08 09:41:09 UTC",
   "inspections": [
     {
       "check_id": "CHK-01",
@@ -17,7 +17,7 @@
       "status": "PASSED",
       "passed": true,
       "details": "Scanned 64 Python modules. Zero emojis (0), zero ML imports (0), AST verified clean (0).",
-      "latency_ms": 74.96
+      "latency_ms": 65.32
     },
     {
       "check_id": "CHK-02",
@@ -25,7 +25,7 @@
       "status": "PASSED",
       "passed": true,
       "details": "All 40 phases mapped: 34 required components confirmed present on disk.",
-      "latency_ms": 0.49
+      "latency_ms": 0.69
     },
     {
       "check_id": "CHK-03",
@@ -33,15 +33,15 @@
       "status": "PASSED",
       "passed": true,
       "details": "14/14 watchtowers operational (100% pass rate). All physics detectors active.",
-      "latency_ms": 20.21
+      "latency_ms": 14.59
     },
     {
       "check_id": "CHK-04",
       "check_name": "Zero-Failure Invariant and Stress Telemetry",
       "status": "PASSED",
       "passed": true,
-      "details": "50 sessions tested: 0 false negatives (100% catch rate), 0 false alarms, mean latency 3.01 ms.",
-      "latency_ms": 167.8
+      "details": "50 sessions tested: 0 false negatives (100% catch rate), 0 false alarms, mean latency 2.07 ms.",
+      "latency_ms": 123.17
     },
     {
       "check_id": "CHK-05",
@@ -49,7 +49,7 @@
       "status": "PASSED",
       "passed": true,
       "details": "SQLite persistence validated at data/qsentinel.db. Schema and read/write cycle verified.",
-      "latency_ms": 10.46
+      "latency_ms": 13.39
     },
     {
       "check_id": "CHK-06",
@@ -57,7 +57,7 @@
       "status": "PASSED",
       "passed": true,
       "details": "OASIS STIX 2.1 bundle generated with 7 objects. Elastic Common Schema event validated at severity 7/10.",
-      "latency_ms": 0.3
+      "latency_ms": 0.28
     },
     {
       "check_id": "CHK-07",
@@ -65,15 +65,15 @@
       "status": "PASSED",
       "passed": true,
       "details": "NQM Whitepaper validated (11432 chars). Defense Manual validated (8300 chars).",
-      "latency_ms": 0.46
+      "latency_ms": 0.37
     },
     {
       "check_id": "CHK-08",
       "check_name": "Cryptographic Release Freeze and SHA-256 Manifest",
       "status": "PASSED",
       "passed": true,
-      "details": "Release locked. Master SHA-256: 539ecb5d3dc2a4e4... Manifest saved to docs/RELEASE_MANIFEST.md.",
-      "latency_ms": 3.28
+      "details": "Release locked. Master SHA-256: a0972764436183d2... Manifest saved to docs/RELEASE_MANIFEST.md.",
+      "latency_ms": 2.29
     }
   ]
 }
