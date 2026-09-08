@@ -10,7 +10,8 @@ import pandas as pd
 from typing import Optional
 
 from quantum.measure import MeasurementTrialResult
-from quantum.security import ThreatAssessment, QuantumDigitalSignature
+from security.detector import ThreatAssessment
+from security.signature import QuantumDigitalSignature
 from quantum.tomography import QuantumStateTomography
 from dashboard.charts import (
     build_outcome_distribution_chart,
