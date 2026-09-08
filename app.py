@@ -559,15 +559,8 @@ st.markdown("""
 
 
 # Initialize Session State
-def set_active_view(target_view: str) -> None:
-    st.session_state.active_view = target_view
-    st.session_state.sidebar_nav_mode = target_view
-
 if "active_view" not in st.session_state:
     st.session_state.active_view = "Live Watchtower Cockpit"
-
-if "sidebar_nav_mode" not in st.session_state:
-    st.session_state.sidebar_nav_mode = st.session_state.active_view
 
 if "selected_scenario_idx" not in st.session_state:
     st.session_state.selected_scenario_idx = 0
@@ -663,19 +656,20 @@ with st.sidebar:
         "14-Watchtower Threat Matrix",
         "Quantum Graph Analytics"
     ]
-    if st.session_state.get("sidebar_nav_mode") != st.session_state.active_view and st.session_state.active_view in view_nav_options:
-        st.session_state.sidebar_nav_mode = st.session_state.active_view
+    cur_v_idx = 0
+    if st.session_state.active_view in view_nav_options:
+        cur_v_idx = view_nav_options.index(st.session_state.active_view)
 
-    def on_sidebar_nav_change() -> None:
-        st.session_state.active_view = st.session_state.sidebar_nav_mode
-
-    st.radio(
+    selected_sidebar_view = st.radio(
         "Active System View",
         options=view_nav_options,
-        key="sidebar_nav_mode",
-        on_change=on_sidebar_nav_change,
+        index=cur_v_idx,
+        key=f"nav_radio_{st.session_state.active_view}",
         label_visibility="collapsed"
     )
+    if selected_sidebar_view != st.session_state.active_view:
+        st.session_state.active_view = selected_sidebar_view
+        st.rerun()
 
     st.markdown("""
     <div style="background:#f0fdf4; border:1px solid #86efac; border-left:4px solid #16a34a; padding:10px 12px; font-size:0.78rem; color:#14532d; border-radius:4px; margin-bottom:16px; margin-top:8px; line-height:1.5;">
@@ -955,30 +949,26 @@ detector: QStatDetector = st.session_state.detector
 col_nv1, col_nv2, col_nv3, col_nv4 = st.columns([1, 1, 1, 1])
 with col_nv1:
     cockpit_active = (st.session_state.active_view == "Live Watchtower Cockpit")
-    if st.button("LIVE WATCHTOWER COCKPIT", key="nav_btn_cockpit", use_container_width=True, type="primary" if cockpit_active else "secondary", help="Interactive verification engine, real-time threat gauge, and 15 physical watchtowers", on_click=set_active_view, args=("Live Watchtower Cockpit",)):
+    if st.button("LIVE WATCHTOWER COCKPIT", key="nav_btn_cockpit", use_container_width=True, type="primary" if cockpit_active else "secondary", help="Interactive verification engine, real-time threat gauge, and 15 physical watchtowers"):
         st.session_state.active_view = "Live Watchtower Cockpit"
-        st.session_state.sidebar_nav_mode = "Live Watchtower Cockpit"
         st.rerun()
 
 with col_nv2:
     tour_active = (st.session_state.active_view == "Executive Protocol Tour")
-    if st.button("EXECUTIVE PROTOCOL TOUR", key="nav_btn_tour", use_container_width=True, type="primary" if tour_active else "secondary", help="Visual 3-qubit teleportation architecture walkthrough, 3-tier defense model, and 1-click scenario demos", on_click=set_active_view, args=("Executive Protocol Tour",)):
+    if st.button("EXECUTIVE PROTOCOL TOUR", key="nav_btn_tour", use_container_width=True, type="primary" if tour_active else "secondary", help="Visual 3-qubit teleportation architecture walkthrough, 3-tier defense model, and 1-click scenario demos"):
         st.session_state.active_view = "Executive Protocol Tour"
-        st.session_state.sidebar_nav_mode = "Executive Protocol Tour"
         st.rerun()
 
 with col_nv3:
     matrix_active = (st.session_state.active_view == "14-Watchtower Threat Matrix")
-    if st.button("14-WATCHTOWER THREAT MATRIX", key="nav_btn_matrix", use_container_width=True, type="primary" if matrix_active else "secondary", help="Complete catalog of all 14 physical watchtowers, mathematical criteria, and target attack vectors", on_click=set_active_view, args=("14-Watchtower Threat Matrix",)):
+    if st.button("14-WATCHTOWER THREAT MATRIX", key="nav_btn_matrix", use_container_width=True, type="primary" if matrix_active else "secondary", help="Complete catalog of all 14 physical watchtowers, mathematical criteria, and target attack vectors"):
         st.session_state.active_view = "14-Watchtower Threat Matrix"
-        st.session_state.sidebar_nav_mode = "14-Watchtower Threat Matrix"
         st.rerun()
 
 with col_nv4:
     analytics_active = (st.session_state.active_view == "Quantum Graph Analytics")
-    if st.button("QUANTUM GRAPH ANALYTICS", key="nav_btn_quantum_analytics", use_container_width=True, type="primary" if analytics_active else "secondary", help="Deep interactive diagnostics: 3D Bloch spheres, density matrix tomography, multi-token fingerprints, and phase space plots", on_click=set_active_view, args=("Quantum Graph Analytics",)):
+    if st.button("QUANTUM GRAPH ANALYTICS", key="nav_btn_quantum_analytics", use_container_width=True, type="primary" if analytics_active else "secondary", help="Deep interactive diagnostics: 3D Bloch spheres, density matrix tomography, multi-token fingerprints, and phase space plots"):
         st.session_state.active_view = "Quantum Graph Analytics"
-        st.session_state.sidebar_nav_mode = "Quantum Graph Analytics"
         st.rerun()
 
 # Dispatch Active View
@@ -1051,9 +1041,8 @@ with col_left:
                 </div>
             </div>
             """, unsafe_allow_html=True)
-            if st.button("OPEN QUANTUM GRAPH ANALYTICS LAB ->", key="btn_open_analytics_lab", use_container_width=True, type="primary", on_click=set_active_view, args=("Quantum Graph Analytics",)):
+            if st.button("OPEN QUANTUM GRAPH ANALYTICS LAB ->", key="btn_open_analytics_lab", use_container_width=True, type="primary"):
                 st.session_state.active_view = "Quantum Graph Analytics"
-                st.session_state.sidebar_nav_mode = "Quantum Graph Analytics"
                 st.rerun()
 
 
