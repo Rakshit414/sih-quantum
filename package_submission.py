@@ -35,15 +35,14 @@ def create_submission_package(workspace_root: str = ".") -> str:
         "Dockerfile",
         "docker-compose.yml",
         ".dockerignore",
-        "run_qsentinel.bat",
-        "run_tests.bat",
-        "run_audit.bat",
-        "run_qsentinel.sh",
+        "run_qsentinel.py",
+        "run_tests.py",
+        "run_audit.py",
         "package_submission.py"
     ]
 
-    excluded_extensions = {".pyc", ".pyo", ".pyd"}
-    excluded_dirs = {"__pycache__", ".pytest_cache", ".git", ".idea", ".vscode", "venv", ".venv"}
+    excluded_extensions = {".pyc", ".pyo", ".pyd", ".bat", ".cmd", ".sh", ".ps1", ".exe"}
+    excluded_dirs = {"__pycache__", ".pytest_cache", ".git", ".idea", ".vscode", "venv", ".venv", "scratch"}
 
     file_count = 0
     total_bytes = 0

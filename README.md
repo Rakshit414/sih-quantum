@@ -79,19 +79,27 @@ pip install -r requirements.txt
 ```
 
 ### 2. Launch the SOC Dashboard
-Start the interactive Streamlit dashboard:
+Start the interactive Streamlit dashboard using the cross-platform Python launcher:
 ```bash
-streamlit run app.py
+python run_qsentinel.py
 ```
+*(Or alternatively: `streamlit run app.py`)*  
 Open your browser at `http://localhost:8501`.
 
 ### 3. Run Automated Tests
-Execute the 23 unit tests verifying state vectors, Bell states, teleportation fidelity, and attack models:
+Execute the complete regression test suite:
 ```bash
-python -m pytest tests/
+python run_tests.py
+```
+*(Or alternatively: `python -m pytest tests/`)*
+
+### 4. Run the Master Release Audit
+Execute the 8-pillar grand release verification:
+```bash
+python run_audit.py
 ```
 
-### 4. Run the Performance Benchmark
+### 5. Run the Performance Benchmark
 Execute the Monte Carlo benchmark runner:
 ```bash
 python benchmark.py --runs 50 --trials 50

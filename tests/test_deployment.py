@@ -88,3 +88,47 @@ def test_packaging_engine_and_checksum():
     actual_sha = hasher.hexdigest()
 
     assert recorded_sha == actual_sha, f"SHA-256 mismatch! Recorded: {recorded_sha}, Actual: {actual_sha}"
+
+
+def test_python_launchers_exist_and_valid():
+    """Verify cross-platform Python launchers exist and contain clean entrypoints."""
+    workspace_root = Path(__file__).resolve().parent.parent
+
+    python_launchers = {
+        "run_qsentinel.py": "streamlit",
+        "run_tests.py": "pytest.main",
+        "run_audit.py": "GrandUnifiedReleaseAuditor",
+    }
+
+    for filename, expected_sym in python_launchers.items():
+        file_path = workspace_root / filename
+        assert file_path.exists(), f"Python launcher {filename} is missing."
+        assert file_path.stat().st_size > 0, f"Python launcher {filename} is empty."
+        content = file_path.read_text(encoding="utf-8")
+        assert expected_sym in content, f"Expected symbol '{expected_sym}' not found in {filename}."
+
+
+def test_submission_package_antivirus_safe():
+    """Verify that final submission zip excludes high-risk script extensions to prevent AV / browser blocks."""
+    import zipfile
+    workspace_root = Path(__file__).resolve().parent.parent
+    zip_path = workspace_root / "dist" / "Q-SENTINEL_SIH26141_FINAL_SUBMISSION.zip"
+
+    assert zip_path.exists(), "Distribution zip must exist."
+
+    prohibited_extensions = {".bat", ".cmd", ".sh", ".ps1", ".exe", ".scr", ".vbs"}
+    with zipfile.ZipFile(zip_path, "r") as zf:
+        namelist = zf.namelist()
+        for name in namelist:
+            ext = Path(name).suffix.lower()
+            assert ext not in prohibited_extensions, (
+                f"Prohibited executable/script extension '{ext}' found in {name}. "
+                "This triggers browser/antivirus download blocks!"
+            )
+
+        # Confirm clean Python launchers are packaged
+        assert "qsentinel/run_qsentinel.py" in namelist, "run_qsentinel.py missing from submission zip."
+        assert "qsentinel/run_tests.py" in namelist, "run_tests.py missing from submission zip."
+        assert "qsentinel/run_audit.py" in namelist, "run_audit.py missing from submission zip."
+        assert "qsentinel/app.py" in namelist, "app.py missing from submission zip."
+
