@@ -13,6 +13,8 @@ import pandas as pd
 import numpy as np
 from datetime import datetime
 from typing import Optional
+import json
+import urllib.request
 
 from rehearsal import (
     QuantumRehearsalRunner,
@@ -778,6 +780,112 @@ def render_prototype_v2_view(ambient_noise_p0: float, key_suffix: str = "v2_view
         with col_ch2:
             fig_sprt = build_sprt_trajectory_chart(st.session_state.seq_report.llr_history, upper_bound_a=9.21, lower_bound_b=-9.21)
             st.plotly_chart(fig_sprt, use_container_width=True)
+
+    st.markdown("---")
+    st.markdown("#### Distributed Microservices Live Telemetry (Alice -> Eve [Port 8001] -> Bob [Port 8002])")
+    st.caption("Real-time telemetry from decoupled transport microservices running in independent terminal processes.")
+
+    # Probe live endpoints with short timeout
+    eve_online = False
+    eve_data = {}
+    try:
+        req_e = urllib.request.Request("http://127.0.0.1:8001/status")
+        with urllib.request.urlopen(req_e, timeout=0.25) as resp_e:
+            if resp_e.status == 200:
+                eve_online = True
+                eve_data = json.loads(resp_e.read().decode("utf-8"))
+    except Exception:
+        pass
+
+    bob_online = False
+    bob_data = {}
+    try:
+        req_b = urllib.request.Request("http://127.0.0.1:8002/verdict")
+        with urllib.request.urlopen(req_b, timeout=0.25) as resp_b:
+            if resp_b.status == 200:
+                bob_online = True
+                bob_data = json.loads(resp_b.read().decode("utf-8"))
+    except Exception:
+        pass
+
+    col_node_e, col_node_b = st.columns([1, 1], gap="medium")
+
+    with col_node_e:
+        if eve_online:
+            st.markdown(f"""
+            <div style="background:#f0fdf4; border:1px solid #86efac; border-left:4px solid #16a34a; padding:10px 14px; border-radius:4px; font-size:0.82rem; color:#14532d;">
+                <b>EVE CHANNEL RELAY (Port 8001): ONLINE</b><br>
+                Active Scenario: <b>{eve_data.get('active_scenario', 'UNKNOWN')}</b><br>
+                Noise Level: <code>{eve_data.get('noise_level', 0.0):.2f}</code><br>
+                Packets Intercepted & Forwarded: <b>{eve_data.get('packets_intercepted', 0)}</b>
+            </div>
+            """, unsafe_allow_html=True)
+        else:
+            st.markdown("""
+            <div style="background:#f8fafc; border:1px solid #cbd5e1; border-left:4px solid #64748b; padding:10px 14px; border-radius:4px; font-size:0.82rem; color:#475569;">
+                <b>EVE CHANNEL RELAY (Port 8001): OFFLINE</b><br>
+                Start in terminal: <code>python -m transport.eve_channel</code>
+            </div>
+            """, unsafe_allow_html=True)
+
+    with col_node_b:
+        if bob_online:
+            v_val = bob_data.get("verdict", "UNKNOWN")
+            v_color = "#16a34a" if v_val == "LEGITIMATE" else ("#d97706" if v_val == "SUSPICIOUS" else "#dc2626")
+            st.markdown(f"""
+            <div style="background:#f0fdf4; border:1px solid #86efac; border-left:4px solid #16a34a; padding:10px 14px; border-radius:4px; font-size:0.82rem; color:#14532d;">
+                <b>BOB VERIFIER SINK (Port 8002): ONLINE</b><br>
+                Live Sequential Verdict: <b style="color:{v_color};">{v_val}</b><br>
+                Trials Ingested: <b>{bob_data.get('n_trials', 0)}</b> | SPRT LLR: <code>{bob_data.get('sprt_llr', 0.0):+.2f}</code><br>
+                Decision Reached: <b>{'YES' if bob_data.get('decision_reached') else 'IN PROGRESS'}</b> | CUSUM: <code>{bob_data.get('cusum_stat', 0.0):.2f}</code>
+            </div>
+            """, unsafe_allow_html=True)
+        else:
+            st.markdown("""
+            <div style="background:#f8fafc; border:1px solid #cbd5e1; border-left:4px solid #64748b; padding:10px 14px; border-radius:4px; font-size:0.82rem; color:#475569;">
+                <b>BOB VERIFIER SINK (Port 8002): OFFLINE</b><br>
+                Start in terminal: <code>python -m transport.bob_node</code>
+            </div>
+            """, unsafe_allow_html=True)
+
+    col_act1, col_act2, col_act3, col_act4 = st.columns([1, 1, 1, 1])
+    with col_act1:
+        if st.button("Transmit Alice Session", key=f"btn_tx_alice_{key_suffix}", use_container_width=True, disabled=not eve_online):
+            from transport.alice_node import AliceSignerNode
+            alice = AliceSignerNode()
+            tx_res = alice.transmit_session("PAYMENT_TX_APPROVED_1000000")
+            st.success(f"Alice sent {tx_res['total_packets']} pkts -> {tx_res['delivered']} delivered to Eve/Bob!")
+            st.rerun()
+
+    with col_act2:
+        if st.button("Set Eve: FORGERY Attack", key=f"btn_set_forgery_{key_suffix}", use_container_width=True, disabled=not eve_online):
+            req_f = urllib.request.Request("http://127.0.0.1:8001/scenario", data=b'{"scenario": "FORGERY"}', headers={"Content-Type": "application/json"}, method="POST")
+            try:
+                urllib.request.urlopen(req_f, timeout=1.0)
+                st.warning("Eve scenario updated to FORGERY!")
+                st.rerun()
+            except Exception as e:
+                st.error(str(e))
+
+    with col_act3:
+        if st.button("Set Eve: LEGITIMATE", key=f"btn_set_legit_{key_suffix}", use_container_width=True, disabled=not eve_online):
+            req_l = urllib.request.Request("http://127.0.0.1:8001/scenario", data=b'{"scenario": "LEGITIMATE"}', headers={"Content-Type": "application/json"}, method="POST")
+            try:
+                urllib.request.urlopen(req_l, timeout=1.0)
+                st.info("Eve scenario updated to LEGITIMATE!")
+                st.rerun()
+            except Exception as e:
+                st.error(str(e))
+
+    with col_act4:
+        if st.button("Reset Bob Verifier", key=f"btn_reset_bob_{key_suffix}", use_container_width=True, disabled=not bob_online):
+            req_r = urllib.request.Request("http://127.0.0.1:8002/reset", data=b'{}', headers={"Content-Type": "application/json"}, method="POST")
+            try:
+                urllib.request.urlopen(req_r, timeout=1.0)
+                st.success("Bob verifier reset!")
+                st.rerun()
+            except Exception as e:
+                st.error(str(e))
 
 
 # Sidebar: Security Controls & Operator Guide

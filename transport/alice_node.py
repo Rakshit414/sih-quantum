@@ -95,6 +95,9 @@ class AliceSignerNode:
         Executes sequential transmission of all trials over HTTP to the channel relay.
         """
         _, packets = self.prepare_session_packets(message, trials_per_token=trials_per_token)
+        total = len(packets)
+        print(f"[ALICE NODE] Prepared {total} packets for message '{message[:32]}...'.")
+        print(f"[ALICE NODE] Dispatching to relay at {relay_url}...")
         delivered_count = 0
         failed_count = 0
 
@@ -115,9 +118,14 @@ class AliceSignerNode:
             except Exception:
                 failed_count += 1
 
+            current = delivered_count + failed_count
+            if current % 100 == 0 or current == total:
+                print(f"[ALICE NODE] Dispatched {current:04d}/{total:04d} packets (Delivered: {delivered_count}, Failed: {failed_count})")
+
             if inter_packet_delay_sec > 0:
                 time.sleep(inter_packet_delay_sec)
 
+        print(f"[ALICE NODE] Transmission finished. Total: {total} | Delivered: {delivered_count} | Failed: {failed_count}")
         return {
             "status": "COMPLETED",
             "total_packets": len(packets),
@@ -128,5 +136,10 @@ class AliceSignerNode:
 
 if __name__ == "__main__":
     node = AliceSignerNode()
+    print("============================================================")
+    print(" Alice Signer Node: Generating and Transmitting QDS Session")
+    print(" Relay Target: http://127.0.0.1:8001/relay")
+    print("============================================================")
     res = node.transmit_session("PAYMENT_TX_APPROVED_1000000")
     print(f"Alice transmission summary: {res}")
+

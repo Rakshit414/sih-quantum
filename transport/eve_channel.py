@@ -175,6 +175,10 @@ class EveChannelRelay:
         disturbed_packet["trial_outcome"] = trial_err
         disturbed_packet["channel_scenario"] = self.active_scenario.value
 
+        tag = disturbed_packet.get("adversarial_tag", "NOMINAL_TRANSIT")
+        if self.packets_intercepted % 50 == 0 or self.packets_intercepted == 1:
+            print(f"[EVE RELAY] Intercepted packet #{self.packets_intercepted:04d} [{disturbed_packet.get('packet_id', '')}] | Scenario: {self.active_scenario.value} | Tag: {tag} -> Forwarded to Bob (Outcome: {trial_err})")
+
         # Forward to Bob
         forward_res = self._forward_to_bob(disturbed_packet)
         return {
@@ -213,7 +217,13 @@ if __name__ == "__main__":
     scenario = os.getenv("EVE_ATTACK_SCENARIO", "LEGITIMATE")
     relay = EveChannelRelay(initial_scenario=scenario, port=8001)
     relay.start_server()
-    print(f"Eve Channel Relay running on port 8001 (Scenario: {scenario})...")
+    print("============================================================")
+    print(" Eve Channel Relay running on port 8001")
+    print(f" Active Attack Scenario : {scenario}")
+    print(f" Forwarding Target      : {relay.bob_url}")
+    print(" Status URL             : http://127.0.0.1:8001/status")
+    print(" Scenario API           : POST http://127.0.0.1:8001/scenario")
+    print("============================================================")
     try:
         while True:
             time.sleep(1)

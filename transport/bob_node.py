@@ -148,6 +148,13 @@ class BobVerifierNode:
             }
             self.trial_history.append(summary)
 
+            if verdict.decision_reached and not getattr(self, "_prev_decision_reached", False):
+                self._prev_decision_reached = True
+                print(f"[BOB SINK] *** DECISION REACHED at trial #{verdict.n_trials:04d} ***")
+                print(f"[BOB SINK] Trigger: {verdict.trigger} | SPRT LLR: {verdict.sprt_llr:+.2f} | CUSUM: {verdict.cusum_stat:.2f} | VERDICT: {verdict.verdict.value}")
+            elif verdict.n_trials % 50 == 0 or verdict.n_trials == 1:
+                print(f"[BOB SINK] Trial #{verdict.n_trials:04d} [{packet_id}] -> Outcome={trial_outcome} | PostMean={verdict.posterior_mean*100:.1f}% | CUSUM={verdict.cusum_stat:.2f} | SPRT={verdict.sprt_llr:+.2f} | Verdict={verdict.verdict.value}")
+
         return summary
 
     def get_current_status(self) -> Dict[str, Any]:
@@ -188,6 +195,8 @@ class BobVerifierNode:
             self.fusion.reset()
             self.latest_verdict = None
             self.trial_history.clear()
+            self._prev_decision_reached = False
+            print("[BOB SINK] Verifier reset completed. Ready for next session.")
 
     def start_server(self, host: str = "127.0.0.1") -> None:
         BobVerifierHandler.verifier_service = self
@@ -204,7 +213,13 @@ class BobVerifierNode:
 if __name__ == "__main__":
     node = BobVerifierNode(port=8002)
     node.start_server()
-    print("Bob Verifier Node running on port 8002...")
+    print("============================================================")
+    print(" Bob Verifier Node running on port 8002")
+    print(" Ingestion Sink  : POST http://127.0.0.1:8002/trial")
+    print(" Live Verdict    : GET  http://127.0.0.1:8002/verdict")
+    print(" History API     : GET  http://127.0.0.1:8002/history")
+    print(" Reset API       : POST http://127.0.0.1:8002/reset")
+    print("============================================================")
     try:
         while True:
             time.sleep(1)
