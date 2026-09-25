@@ -52,12 +52,14 @@ class QStatDetector:
         baseline_noise_p0: float = 0.03,
         z_suspicious_threshold: float = 2.0,
         z_malicious_threshold: float = 4.0,
-        freshness_registry: Optional[FreshnessRegistry] = None
+        freshness_registry: Optional[FreshnessRegistry] = None,
+        calibrator: Optional[Any] = None
     ):
         self.p0: float = baseline_noise_p0
         self.z_suspicious: float = z_suspicious_threshold
         self.z_malicious: float = z_malicious_threshold
         self.freshness: FreshnessRegistry = freshness_registry or FreshnessRegistry()
+        self.calibrator = calibrator
 
     def calibrate_baseline(self, empirical_trials: np.ndarray) -> float:
         """
@@ -78,10 +80,13 @@ class QStatDetector:
         """
         Executes complete verification pipeline:
         1. Freshness / Anti-Replay verification.
-        2. Exact Binomial Hypothesis Test (H0: p <= p0 vs H1: p > p0).
-        3. Standardized Z-score calculation.
-        4. Three-tier threshold classification.
+        2. Exact Binomial Hypothesis Test.
+        3. Standardized Z-Score Anomaly Scoring.
+        4. Three-Tier Decision Classification.
         """
+        if self.calibrator is not None and hasattr(self.calibrator, "get_current_baseline"):
+            self.p0 = float(self.calibrator.get_current_baseline())
+
         # Step 1: Cryptographic freshness check
         is_fresh, freshness_reason = self.freshness.verify_and_register(
             signer_id=signer_id,

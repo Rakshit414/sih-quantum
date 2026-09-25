@@ -27,6 +27,7 @@ import numpy as np
 from scipy import stats
 
 from security.detector import ThreatCategory, ThreatAssessment, QStatDetector
+from security.calibrate import DynamicNoiseCalibrator, CalibrationStatus
 
 
 @dataclass
@@ -76,7 +77,9 @@ class SequentialQStat:
         cusum_threshold_h: Optional[float] = None,
         sprt_alpha: float = 1e-4,
         sprt_beta: float = 1e-4,
-        prior_concentration: float = 20.0
+        prior_concentration: float = 20.0,
+        calibrator: Optional[DynamicNoiseCalibrator] = None,
+        calibration_interval_trials: int = 50
     ):
         """
         Initializes the sequential detector.
@@ -89,6 +92,8 @@ class SequentialQStat:
             sprt_alpha: Target type I error rate (false alarm probability). Default 1e-4.
             sprt_beta: Target type II error rate (missed detection probability). Default 1e-4.
             prior_concentration: Effective pseudo-observation count k for Beta prior.
+            calibrator: Optional DynamicNoiseCalibrator instance tracking channel drift.
+            calibration_interval_trials: Frequency of pulling current baseline from calibrator.
         """
         if not (0.0 < baseline_p0 < alt_p1 < 1.0):
             raise ValueError(f"Must have 0.0 < baseline_p0 ({baseline_p0}) < alt_p1 ({alt_p1}) < 1.0")
@@ -98,6 +103,8 @@ class SequentialQStat:
         self.k: float = float(prior_concentration)
         self.sprt_alpha: float = float(sprt_alpha)
         self.sprt_beta: float = float(sprt_beta)
+        self.calibrator: Optional[DynamicNoiseCalibrator] = calibrator
+        self.calibration_interval: int = max(1, int(calibration_interval_trials))
 
         # 1. Beta Prior Initialization: Beta(alpha0, beta0)
         self.alpha0: float = max(0.1, self.p0 * self.k)
@@ -136,6 +143,30 @@ class SequentialQStat:
         self.final_verdict: Optional[ThreatCategory] = None
         self.final_trigger: str = "NONE"
 
+    def _update_baseline(self, new_p0: float) -> None:
+        """Dynamically recalibrates null hypothesis baseline p0."""
+        new_p0 = float(np.clip(new_p0, 0.001, self.p1 - 0.01))
+        self.p0 = new_p0
+        self.alpha0 = max(0.1, self.p0 * self.k)
+        self.beta0 = max(0.1, (1.0 - self.p0) * self.k)
+        self.llr_1 = math.log(self.p1 / self.p0)
+        self.llr_0 = math.log((1.0 - self.p1) / (1.0 - self.p0))
+
+    def ingest_pilot_frame(
+        self,
+        num_trials: int,
+        n_errors: int,
+        timestamp: Optional[float] = None
+    ) -> CalibrationStatus:
+        """
+        Ingests a dedicated pilot probe measurement frame and dynamically recalibrates p0.
+        """
+        if self.calibrator is None:
+            self.calibrator = DynamicNoiseCalibrator(nominal_p0=self.p0)
+        status = self.calibrator.ingest_pilot_measurement(num_trials, n_errors, timestamp=timestamp)
+        self._update_baseline(status.calibrated_p0)
+        return status
+
     def reset(self) -> None:
         """Resets all sequential accumulators back to initial state."""
         self.alpha = self.alpha0
@@ -170,6 +201,12 @@ class SequentialQStat:
         # 95% Credible Interval
         ci_lower = float(stats.beta.ppf(0.025, self.alpha, self.beta))
         ci_upper = float(stats.beta.ppf(0.975, self.alpha, self.beta))
+
+        # Periodic calibration baseline pull
+        if self.calibrator is not None and (self.n_trials % self.calibration_interval == 0):
+            current_p0 = self.calibrator.get_current_baseline()
+            if abs(current_p0 - self.p0) > 1e-4:
+                self._update_baseline(current_p0)
 
         # 2. Update LLR Increment
         llr_inc = self.llr_1 if x == 1 else self.llr_0
