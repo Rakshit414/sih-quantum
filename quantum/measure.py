@@ -25,6 +25,9 @@ class MeasurementTrialResult:
     raw_samples: np.ndarray  # 0 for match, 1 for error
 
 
+_DEFAULT_RNG = np.random.default_rng(2026)
+
+
 def projective_measurement_single(
     state: QubitState,
     basis: PauliBasis,
@@ -47,7 +50,7 @@ def projective_measurement_single(
     probs = np.clip(probs, 0.0, 1.0)
     probs /= np.sum(probs)
     
-    rng = np.random.default_rng(random_seed)
+    rng = np.random.default_rng(random_seed) if random_seed is not None else _DEFAULT_RNG
     measured_bit = int(rng.choice([0, 1], p=probs))
     return measured_bit, float(probs[measured_bit])
 
@@ -77,7 +80,7 @@ def sample_projective_trials(
     p_error_theoretical = float(np.clip((1.0 - fidelity) + ambient_noise * fidelity, 0.0, 1.0))
     p_match_theoretical = 1.0 - p_error_theoretical
     
-    rng = np.random.default_rng(random_seed)
+    rng = np.random.default_rng(random_seed) if random_seed is not None else _DEFAULT_RNG
     # Samples: 0 = match (valid), 1 = error (tampered/noise)
     samples = rng.choice(
         [0, 1],

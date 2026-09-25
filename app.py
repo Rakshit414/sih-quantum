@@ -57,7 +57,10 @@ from dashboard.charts import (
     build_threat_gauge,
     build_outcome_distribution_chart,
     build_telemetry_trend_chart,
+    build_cusum_trajectory_chart,
+    build_sprt_trajectory_chart,
 )
+from security.sequential import SequentialQStat, evaluate_sequential_session
 from dashboard.visualizer import render_teleportation_pipeline_html
 from dashboard.landing_pages import render_executive_protocol_tour, render_threat_matrix_directory
 from dashboard.analytics_page import render_quantum_graph_analytics_page
@@ -1178,7 +1181,7 @@ with st.container(border=True):
 
 history_df = st.session_state.telemetry_store.get_dataframe(limit=50)
 
-tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9, tab10, tab11, tab12, tab13, tab14, tab15 = st.tabs([
+tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9, tab10, tab11, tab12, tab13, tab14, tab15, tab16 = st.tabs([
     "Anomaly Score Trend (z-Score)",
     "Detailed Verification Log Table",
     "Real-Time Network Threat Stream Monitor",
@@ -1193,7 +1196,8 @@ tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9, tab10, tab11, tab12, tab13
     "Measurement-Device-Independent QDS & Untrusted Relay Watchtower (Q-MDI)",
     "Quantum WDM & Co-Propagation Raman Defense (Q-WDM)",
     "Enterprise SOC SIEM & STIX 2.1 Threat Intelligence (Q-SOC)",
-    "NQM Defense Whitepaper & Monte Carlo Rehearsal Kit (Q-DOC)"
+    "NQM Defense Whitepaper & Monte Carlo Rehearsal Kit (Q-DOC)",
+    "Sequential Surveillance & Audit Chain (Q-SEQUENTIAL)"
 ])
 
 with tab1:
@@ -1205,6 +1209,23 @@ with tab1:
 with tab2:
     st.markdown("#### Detailed Telemetry Verification Log")
     st.caption("Complete tabular audit log of all QDS verification runs, error rates, threat verdicts, and cryptographic proofs stored in the local SQLite datastore.")
+
+    # Cryptographic Audit Chain Verification Status Badge
+    is_chain_valid, broken_id, reason = st.session_state.telemetry_store.verify_chain()
+    latest_hash = st.session_state.telemetry_store.get_latest_chain_hash()
+    if is_chain_valid:
+        st.markdown(f"""
+        <div style="background:#f0fdf4; border:1px solid #86efac; border-left:4px solid #16a34a; padding:8px 12px; font-size:0.8rem; color:#14532d; border-radius:4px; margin-bottom:12px;">
+            <b>CRYPTOGRAPHIC AUDIT CHAIN VERIFIED INTACT</b> | SHA3-256 Head: <code>{latest_hash[:24]}...</code> | Status: <b>{reason}</b>
+        </div>
+        """, unsafe_allow_html=True)
+    else:
+        st.markdown(f"""
+        <div style="background:#fef2f2; border:1px solid #fca5a5; border-left:4px solid #dc2626; padding:8px 12px; font-size:0.8rem; color:#7f1d1d; border-radius:4px; margin-bottom:12px;">
+            <b>CRYPTOGRAPHIC AUDIT CHAIN COMPROMISED:</b> {reason} (Broken at ID: {broken_id})
+        </div>
+        """, unsafe_allow_html=True)
+
     if not history_df.empty:
         st.dataframe(
             history_df,
@@ -2258,6 +2279,132 @@ with tab15:
                 mime="text/markdown",
                 use_container_width=True
             )
+
+with tab16:
+    st.markdown("#### Sequential Q-STAT Surveillance & Cryptographic Audit Chain (Phase 42-50 Prototype-v2)")
+    st.caption("Live adaptive sequential hypothesis testing (Page CUSUM + Wald SPRT) detecting sub-threshold and intermittent burst attacks alongside SHA3-256 tamper-evident audit chaining.")
+
+    col_sq1, col_sq2 = st.columns([1, 1])
+
+    with col_sq1:
+        st.markdown("**Real-Time Sequential Simulation**")
+        seq_scenario = st.selectbox(
+            "Select Sequential Threat Model",
+            options=[
+                "Clean Legitimate Session (Ambient Noise 3%)",
+                "15% Duty-Cycle Intermittent Burst Attack",
+                "Full Adversarial Forgery Attack (QBER ~45%)"
+            ],
+            key="seq_scenario_choice"
+        )
+        seq_trials_count = st.slider("Verification Block Size", min_value=60, max_value=300, value=150, step=30, key="seq_trials_count")
+        run_seq_sim = st.button("Execute Sequential Hypothesis Test", type="primary", use_container_width=True, key="btn_run_seq")
+
+        if "seq_report" not in st.session_state:
+            st.session_state.seq_report = None
+
+        if run_seq_sim:
+            detector_seq = SequentialQStat(
+                p0=ambient_noise_p0,
+                p1=0.45,
+                alpha=1e-4,
+                beta=1e-4,
+                h_cusum=8.5
+            )
+            rng = np.random.default_rng()
+            if "Clean" in seq_scenario:
+                trials_seq = (rng.random(seq_trials_count) < ambient_noise_p0).astype(int).tolist()
+            elif "Intermittent" in seq_scenario:
+                trials_seq = (rng.random(seq_trials_count) < ambient_noise_p0).astype(int).tolist()
+                burst_len = int(seq_trials_count * 0.15)
+                burst_start = int(seq_trials_count * 0.35)
+                for b_i in range(burst_start, burst_start + burst_len):
+                    trials_seq[b_i] = 1 if rng.random() < 0.45 else 0
+            else:
+                trials_seq = (rng.random(seq_trials_count) < 0.45).astype(int).tolist()
+
+            report_seq = evaluate_sequential_session(trials_seq, detector=detector_seq)
+            st.session_state.seq_report = report_seq
+
+        if st.session_state.seq_report:
+            rep = st.session_state.seq_report
+            verdict_color = "#16a34a" if rep.verdict == ThreatCategory.LEGITIMATE else ("#d97706" if rep.verdict == ThreatCategory.SUSPICIOUS else "#dc2626")
+            st.markdown(f"""
+            <table class="metrics-table">
+                <tr><th>Sequential Metric</th><th>Value</th></tr>
+                <tr><td>Final Verdict</td><td><b style="color:{verdict_color};">{rep.verdict.value}</b></td></tr>
+                <tr><td>Trials Ingested</td><td><b>{rep.total_trials}</b> trials</td></tr>
+                <tr><td>Early Stopping Trial (ASN)</td><td><b>{rep.stopped_at_trial if rep.stopped_at_trial else 'Full Block Run'}</b></td></tr>
+                <tr><td>Sample Complexity Reduction</td><td><b>{((seq_trials_count - (rep.stopped_at_trial or seq_trials_count)) / seq_trials_count) * 100:.1f}%</b></td></tr>
+                <tr><td>Observed Error Rate</td><td><b>{rep.observed_error_rate * 100:.2f}%</b></td></tr>
+                <tr><td>Max CUSUM Value</td><td><b>{rep.max_cusum:.2f}</b> (Threshold h = 8.5)</td></tr>
+                <tr><td>Final SPRT LLR (Lambda)</td><td><b>{rep.final_llr:+.2f}</b> (Boundaries +/-9.21)</td></tr>
+                <tr><td>Posterior Mean Noise</td><td><b>{rep.posterior_mean_p * 100:.2f}%</b></td></tr>
+            </table>
+            """, unsafe_allow_html=True)
+
+    with col_sq2:
+        st.markdown("**Tamper-Evident SHA3-256 Audit Chain Verification**")
+        col_ac1, col_ac2 = st.columns([1, 1])
+        with col_ac1:
+            verify_chain_btn = st.button("Verify Full Chain Integrity", use_container_width=True, key="btn_verify_chain")
+        with col_ac2:
+            test_record_btn = st.button("Append Test Telemetry Record", use_container_width=True, key="btn_append_record")
+
+        if test_record_btn:
+            new_h = st.session_state.telemetry_store.append_chained({
+                "source": "dashboard_operator",
+                "action": "manual_audit_checkpoint",
+                "timestamp": time.time(),
+                "status": "HEALTHY"
+            })
+            st.success(f"Appended new record. Entry Hash: {new_h[:24]}...")
+
+        is_valid_c, broken_id_c, reason_c = st.session_state.telemetry_store.verify_chain()
+        head_h = st.session_state.telemetry_store.get_latest_chain_hash()
+
+        if is_valid_c:
+            st.markdown(f"""
+            <div style="background:#f0fdf4; border:1px solid #86efac; border-left:4px solid #16a34a; padding:10px 14px; font-size:0.82rem; color:#14532d; border-radius:4px; margin-bottom:12px;">
+                <b>CRYPTOGRAPHIC AUDIT CHAIN VERIFIED INTACT</b><br>
+                Verification Result: <b>{reason_c}</b><br>
+                Latest Head Hash (SHA3-256): <code>{head_h}</code><br>
+                Integrity Guarantee: Mathematically impossible to alter or delete records without hash chain break.
+            </div>
+            """, unsafe_allow_html=True)
+        else:
+            st.markdown(f"""
+            <div style="background:#fef2f2; border:1px solid #fca5a5; border-left:4px solid #dc2626; padding:10px 14px; font-size:0.82rem; color:#7f1d1d; border-radius:4px; margin-bottom:12px;">
+                <b>CRYPTOGRAPHIC AUDIT CHAIN COMPROMISED:</b><br>
+                Failure Reason: <b>{reason_c}</b><br>
+                Corrupted Row ID: <code>{broken_id_c}</code>
+            </div>
+            """, unsafe_allow_html=True)
+
+        recent_chain = st.session_state.telemetry_store.get_audit_chain(limit=5)
+        if recent_chain:
+            st.markdown("**Recent Audit Chain Links (Ordered by Insertion):**")
+            chain_rows = []
+            for r in recent_chain:
+                chain_rows.append({
+                    "ID": r["id"],
+                    "ISO Time": r["iso_time"],
+                    "Prev Hash": f"{r['prev_hash'][:12]}...",
+                    "Entry Hash": f"{r['entry_hash'][:12]}...",
+                    "Payload Snippet": r["payload_json"][:45] + "..."
+                })
+            st.dataframe(chain_rows, use_container_width=True)
+
+    if st.session_state.seq_report:
+        st.markdown("---")
+        st.markdown("#### Real-Time Statistical Surveillance Trajectories")
+        col_ch1, col_ch2 = st.columns([1, 1])
+        with col_ch1:
+            fig_cusum = build_cusum_trajectory_chart(st.session_state.seq_report.cusum_history, threshold_h=8.5)
+            st.plotly_chart(fig_cusum, use_container_width=True)
+        with col_ch2:
+            fig_sprt = build_sprt_trajectory_chart(st.session_state.seq_report.llr_history, upper_bound_a=9.21, lower_bound_b=-9.21)
+            st.plotly_chart(fig_sprt, use_container_width=True)
 
 # Clean Footer (Zero Emojis/Symbols)
 render_app_footer()
