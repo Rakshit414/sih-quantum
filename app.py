@@ -679,11 +679,11 @@ def render_prototype_v2_view(ambient_noise_p0: float, key_suffix: str = "v2_view
 
         if run_seq_sim:
             detector_seq = SequentialQStat(
-                p0=ambient_noise_p0,
-                p1=0.45,
-                alpha=1e-4,
-                beta=1e-4,
-                h_cusum=8.5
+                baseline_p0=ambient_noise_p0,
+                alt_p1=0.20,
+                sprt_alpha=1e-4,
+                sprt_beta=1e-4,
+                cusum_threshold_h=8.5
             )
             rng = np.random.default_rng()
             if "Clean" in seq_scenario:
@@ -697,8 +697,33 @@ def render_prototype_v2_view(ambient_noise_p0: float, key_suffix: str = "v2_view
             else:
                 trials_seq = (rng.random(seq_trials_count) < 0.45).astype(int).tolist()
 
-            report_seq = evaluate_sequential_session(trials_seq, detector=detector_seq)
-            st.session_state.seq_report = report_seq
+            cusum_hist = []
+            llr_hist = []
+            stopped_at = None
+            last_v = None
+            for idx, outcome in enumerate(trials_seq, start=1):
+                v = detector_seq.update(outcome)
+                last_v = v
+                cusum_hist.append(v.cusum_stat)
+                llr_hist.append(v.sprt_llr)
+                if v.decision_reached and stopped_at is None:
+                    stopped_at = idx
+
+            class _SeqSessionRun:
+                pass
+
+            rep_obj = _SeqSessionRun()
+            rep_obj.verdict = last_v.verdict if last_v else ThreatCategory.LEGITIMATE
+            rep_obj.total_trials = len(trials_seq)
+            rep_obj.stopped_at_trial = stopped_at
+            rep_obj.observed_error_rate = sum(trials_seq) / len(trials_seq)
+            rep_obj.max_cusum = max(cusum_hist) if cusum_hist else 0.0
+            rep_obj.final_llr = last_v.sprt_llr if last_v else 0.0
+            rep_obj.posterior_mean_p = last_v.posterior_mean if last_v else ambient_noise_p0
+            rep_obj.cusum_history = cusum_hist
+            rep_obj.llr_history = llr_hist
+            st.session_state.seq_report = rep_obj
+
 
         if st.session_state.seq_report:
             rep = st.session_state.seq_report
