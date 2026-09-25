@@ -24,6 +24,7 @@ from dataclasses import asdict
 
 from security.sequential import SequentialQStat, SequentialVerdict
 from security.detector import ThreatCategory
+from security.streaming import MultiArmFusion, FusedVerdict
 
 
 class BobVerifierHandler(http.server.BaseHTTPRequestHandler):
@@ -106,6 +107,7 @@ class BobVerifierNode:
     ):
         self.port = port
         self.detector = SequentialQStat(baseline_p0=baseline_p0, alt_p1=alt_p1)
+        self.fusion = MultiArmFusion()
         self.latest_verdict: Optional[SequentialVerdict] = None
         self.trial_history: List[Dict[str, Any]] = []
         self.lock = threading.Lock()
@@ -115,7 +117,7 @@ class BobVerifierNode:
     def ingest_trial(self, packet: Dict[str, Any]) -> Dict[str, Any]:
         """
         Processes an individual incoming packet, extracting the projective trial
-        outcome and feeding it to SequentialQStat.
+        outcome and feeding it to SequentialQStat and concurrent watchtower arms.
         """
         trial_outcome = int(packet.get("trial_outcome", 0))
         packet_id = packet.get("packet_id", "UNKNOWN")
@@ -124,10 +126,18 @@ class BobVerifierNode:
             verdict = self.detector.update(trial_outcome)
             self.latest_verdict = verdict
 
+            # Update multi-arm watchtower fusion if telemetry samples present
+            if "watchtower_samples" in packet and isinstance(packet["watchtower_samples"], dict):
+                fused = self.fusion.update_all(packet["watchtower_samples"])
+            else:
+                fused = self.fusion.get_fused_verdict()
+
             summary = {
                 "packet_id": packet_id,
                 "trial_outcome": trial_outcome,
                 "verdict": verdict.verdict.value,
+                "fused_verdict": fused.verdict.value,
+                "fired_arm": fused.fired_arm,
                 "trigger": verdict.trigger,
                 "n_trials": verdict.n_trials,
                 "posterior_mean": verdict.posterior_mean,
@@ -143,16 +153,24 @@ class BobVerifierNode:
     def get_current_status(self) -> Dict[str, Any]:
         """Returns the current real-time sequential verdict and telemetry."""
         with self.lock:
+            fused = self.fusion.get_fused_verdict()
             if self.latest_verdict is None:
                 return {
                     "node": "bob_verifier_sink",
                     "status": "AWAITING_TRIALS",
                     "n_trials": 0,
-                    "verdict": ThreatCategory.LEGITIMATE.value
+                    "verdict": ThreatCategory.LEGITIMATE.value,
+                    "fused_verdict": fused.verdict.value,
+                    "fired_arm": fused.fired_arm,
+                    "joint_alpha": fused.joint_alpha
                 }
             return {
                 "node": "bob_verifier_sink",
                 "verdict": self.latest_verdict.verdict.value,
+                "fused_verdict": fused.verdict.value,
+                "fired_arm": fused.fired_arm,
+                "joint_alpha": fused.joint_alpha,
+                "effective_alpha_per_arm": fused.effective_alpha_per_arm,
                 "trigger": self.latest_verdict.trigger,
                 "n_trials": self.latest_verdict.n_trials,
                 "posterior_mean": self.latest_verdict.posterior_mean,
@@ -167,6 +185,7 @@ class BobVerifierNode:
         """Resets detector accumulators and trial history."""
         with self.lock:
             self.detector.reset()
+            self.fusion.reset()
             self.latest_verdict = None
             self.trial_history.clear()
 
