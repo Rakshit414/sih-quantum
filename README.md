@@ -379,13 +379,30 @@ print(f"Chained Block Hash: {block_hash}")  # SHA3-256
 
 ---
 
-## References
+## References & Foundational Literature
 
+### 1 · Quantum Protocols & Entanglement Foundations
 1. Bennett, C. H., Brassard, G., Crépeau, C., Jozsa, R., Peres, A., & Wootters, W. K. (1993). *Teleporting an unknown quantum state via dual classical and Einstein-Podolsky-Rosen channels.* Physical Review Letters, 70(13), 1895. [doi:10.1103/PhysRevLett.70.1895](https://doi.org/10.1103/PhysRevLett.70.1895)
-2. Gottesman, D., & Chuang, I. (2001). *Quantum digital signatures.* arXiv preprint [quant-ph/0105032](https://arxiv.org/abs/quant-ph/0105032).
-3. Wald, A. (1945). *Sequential tests of statistical hypotheses.* The Annals of Mathematical Statistics, 16(2), 117-186. [doi:10.1214/aoms/1177731118](https://doi.org/10.1214/aoms/1177731118)
-4. Page, E. S. (1954). *Continuous inspection schemes.* Biometrika, 41(1/2), 100-115. [doi:10.2307/2333009](https://doi.org/10.2307/2333009)
-5. National Institute of Standards and Technology (NIST). (2015). *SHA-3 Standard: Permutation-Based Hash and Extendable-Output Functions.* FIPS PUB 202. [doi:10.6028/NIST.FIPS.202](https://doi.org/10.6028/NIST.FIPS.202)
+2. Gottesman, D., & Chuang, I. (2001). *Quantum digital signatures.* arXiv preprint. [quant-ph/0105032](https://arxiv.org/abs/quant-ph/0105032)
+3. Ekert, A. K. (1991). *Quantum cryptography based on Bell’s theorem.* Physical Review Letters, 67(6), 661. [doi:10.1103/PhysRevLett.67.661](https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.67.661)
+4. Pironio, S., et al. (2010). *Random numbers certified by Bell’s theorem.* Nature, 464(7291), 1021–1024. [PubMed: 20393558](https://pubmed.ncbi.nlm.nih.gov/20393558/)
+
+### 2 · Optical Hardware Security & National Defense Field Deployments
+5. Gisin, N., Fasel, S., Kraus, B., Zbinden, H., & Ribordy, G. (2006). *Trojan-horse attacks on quantum-key-distribution systems.* Physical Review A, 73(2), 022320. [doi:10.1103/PhysRevA.73.022320](https://journals.aps.org/pra/abstract/10.1103/PhysRevA.73.022320)
+6. DRDO & IIT Delhi (2024). *Demonstration of Various Quantum Communication Technologies.* Ministry of Defence, Government of India Press Release. [drdo.gov.in](https://drdo.gov.in/drdo/en/documents/press-release/drdo-and-iit-delhi-organise-demonstration-various-quantum-communication)
+7. DRDO & IIT Delhi (2025). *Free-Space Entanglement-Based Quantum Communication Demonstration.* Ministry of Defence, Government of India Press Release. [drdo.gov.in](https://drdo.gov.in/drdo/en/documents/press-release/drdo-iit-delhi-demonstrate-quantum-entanglement-based-free-space-quantum)
+8. QNu Labs (Bengaluru). *Armos QKD System & Tropos QRNG Architecture.* Sovereign Indian Quantum Cryptography Whitepapers. [qnulabs.com](https://www.qnulabs.com/download-center)
+
+### 3 · Sequential Statistics & Real-Time Threat Surveillance
+9. Wald, A. (1945). *Sequential tests of statistical hypotheses.* The Annals of Mathematical Statistics, 16(2), 117–186. [doi:10.1214/aoms/1177731118](https://doi.org/10.1214/aoms/1177731118)
+10. Page, E. S. (1954). *Continuous inspection schemes.* Biometrika, 41(1/2), 100–115. [doi:10.1093/biomet/41.1-2.100](https://doi.org/10.1093/biomet/41.1-2.100)
+11. Lorden, G. (1971). *Procedures for reacting to a change in distribution.* The Annals of Mathematical Statistics, 42(6), 1897–1908. [Caltech Authors](https://authors.library.caltech.edu/records/n9ryc-0sr08)
+12. Adams, R. P., & MacKay, D. J. (2007). *Bayesian online changepoint detection.* arXiv preprint. [arXiv:0710.3742](https://arxiv.org/abs/0710.3742)
+
+### 4 · Cryptographic Standards & Post-Quantum Cryptography (PQC)
+13. National Institute of Standards and Technology (NIST). (2015). *SHA-3 Standard: Permutation-Based Hash and Extendable-Output Functions.* FIPS PUB 202. [doi:10.6028/NIST.FIPS.202](https://doi.org/10.6028/NIST.FIPS.202)
+14. National Institute of Standards and Technology (NIST). (2024). *Module-Lattice-Based Digital Signature Standard (ML-DSA).* FIPS PUB 204. [csrc.nist.gov](https://csrc.nist.gov/pubs/fips/204/final)
+15. National Institute of Standards and Technology (NIST). (2024). *Stateless Hash-Based Digital Signature Standard (SLH-DSA).* FIPS PUB 205. [csrc.nist.gov](https://csrc.nist.gov/pubs/fips/205/final)
 
 ---
 
