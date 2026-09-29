@@ -857,12 +857,14 @@ def render_prototype_v2_view(ambient_noise_p0: float, key_suffix: str = "v2_view
         if bob_online:
             v_val = bob_data.get("verdict", "UNKNOWN")
             v_color = "#16a34a" if v_val == "LEGITIMATE" else ("#d97706" if v_val == "SUSPICIOUS" else "#dc2626")
+            dec_trial = bob_data.get("decision_trial")
+            dec_str = f"YES (at Trial #{dec_trial})" if dec_trial else ("YES" if bob_data.get("decision_reached") else "IN PROGRESS")
             st.markdown(f"""
             <div style="background:#f0fdf4; border:1px solid #86efac; border-left:4px solid #16a34a; padding:10px 14px; border-radius:4px; font-size:0.82rem; color:#14532d;">
                 <b>BOB VERIFIER SINK (Port 8002): ONLINE</b><br>
                 Live Sequential Verdict: <b style="color:{v_color};">{v_val}</b><br>
                 Trials Ingested: <b>{bob_data.get('n_trials', 0)}</b> | SPRT LLR: <code>{bob_data.get('sprt_llr', 0.0):+.2f}</code><br>
-                Decision Reached: <b>{'YES' if bob_data.get('decision_reached') else 'IN PROGRESS'}</b> | CUSUM: <code>{bob_data.get('cusum_stat', 0.0):.2f}</code>
+                Decision Reached: <b>{dec_str}</b> | CUSUM: <code>{bob_data.get('cusum_stat', 0.0):.2f}</code>
             </div>
             """, unsafe_allow_html=True)
         else:
@@ -873,13 +875,22 @@ def render_prototype_v2_view(ambient_noise_p0: float, key_suffix: str = "v2_view
             </div>
             """, unsafe_allow_html=True)
 
+    early_stop_toggle = st.checkbox(
+        "Enable Early Stopping on Network Transmission (Alice immediately cuts transmission when Bob reaches a decision)",
+        value=True,
+        key=f"chk_early_stop_{key_suffix}"
+    )
+
     col_act1, col_act2, col_act3, col_act4 = st.columns([1, 1, 1, 1])
     with col_act1:
         if st.button("Transmit Alice Session", key=f"btn_tx_alice_{key_suffix}", use_container_width=True, disabled=not eve_online):
             from transport.alice_node import AliceSignerNode
             alice = AliceSignerNode()
-            tx_res = alice.transmit_session("PAYMENT_TX_APPROVED_1000000")
-            st.success(f"Alice sent {tx_res['total_packets']} pkts -> {tx_res['delivered']} delivered to Eve/Bob!")
+            tx_res = alice.transmit_session("PAYMENT_TX_APPROVED_1000000", early_stop_on_verdict=early_stop_toggle)
+            if tx_res.get("stopped_early"):
+                st.warning(f"Early Stopping Triggered: Alice halted after {tx_res['delivered']} packets (Bob decided {tx_res['decision_verdict']})! Saved {tx_res['saved_packets']} packets ({((tx_res['saved_packets'])/tx_res['total_packets'])*100:.1f}% bandwidth reduction).")
+            else:
+                st.success(f"Alice sent {tx_res['total_packets']} pkts -> {tx_res['delivered']} delivered to Eve/Bob!")
             st.rerun()
 
     with col_act2:

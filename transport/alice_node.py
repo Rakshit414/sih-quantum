@@ -89,17 +89,21 @@ class AliceSignerNode:
         message: str,
         relay_url: str = "http://127.0.0.1:8001/relay",
         trials_per_token: int = 50,
-        inter_packet_delay_sec: float = 0.001
+        inter_packet_delay_sec: float = 0.001,
+        early_stop_on_verdict: bool = False
     ) -> Dict[str, Any]:
         """
         Executes sequential transmission of all trials over HTTP to the channel relay.
+        If early_stop_on_verdict is True, transmission halts the moment Bob reaches a decision.
         """
         _, packets = self.prepare_session_packets(message, trials_per_token=trials_per_token)
         total = len(packets)
         print(f"[ALICE NODE] Prepared {total} packets for message '{message[:32]}...'.")
-        print(f"[ALICE NODE] Dispatching to relay at {relay_url}...")
+        print(f"[ALICE NODE] Dispatching to relay at {relay_url} (early_stop={early_stop_on_verdict})...")
         delivered_count = 0
         failed_count = 0
+        stopped_early = False
+        decision_verdict = None
 
         for pkt in packets:
             data = json.dumps(pkt).encode("utf-8")
@@ -113,6 +117,13 @@ class AliceSignerNode:
                 with urllib.request.urlopen(req, timeout=5.0) as resp:
                     if resp.status == 200:
                         delivered_count += 1
+                        resp_body = json.loads(resp.read().decode("utf-8"))
+                        bob_res = resp_body.get("bob_response", {})
+                        if early_stop_on_verdict and bob_res.get("decision_reached"):
+                            stopped_early = True
+                            decision_verdict = bob_res.get("verdict")
+                            print(f"[ALICE NODE] Early stopping triggered by Bob at packet #{delivered_count:04d} (Verdict: {decision_verdict})! Saved {total - delivered_count} packets ({((total - delivered_count)/total)*100:.1f}% bandwidth reduction).")
+                            break
                     else:
                         failed_count += 1
             except Exception:
@@ -125,12 +136,15 @@ class AliceSignerNode:
             if inter_packet_delay_sec > 0:
                 time.sleep(inter_packet_delay_sec)
 
-        print(f"[ALICE NODE] Transmission finished. Total: {total} | Delivered: {delivered_count} | Failed: {failed_count}")
+        print(f"[ALICE NODE] Transmission finished. Total planned: {total} | Actually delivered: {delivered_count} | Stopped early: {stopped_early}")
         return {
-            "status": "COMPLETED",
-            "total_packets": len(packets),
+            "status": "STOPPED_EARLY" if stopped_early else "COMPLETED",
+            "total_packets": total,
             "delivered": delivered_count,
-            "failed": failed_count
+            "failed": failed_count,
+            "stopped_early": stopped_early,
+            "decision_verdict": decision_verdict,
+            "saved_packets": total - delivered_count
         }
 
 

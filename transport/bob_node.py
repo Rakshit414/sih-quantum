@@ -150,6 +150,7 @@ class BobVerifierNode:
 
             if verdict.decision_reached and not getattr(self, "_prev_decision_reached", False):
                 self._prev_decision_reached = True
+                self.decision_trial_idx = verdict.n_trials
                 print(f"[BOB SINK] *** DECISION REACHED at trial #{verdict.n_trials:04d} ***")
                 print(f"[BOB SINK] Trigger: {verdict.trigger} | SPRT LLR: {verdict.sprt_llr:+.2f} | CUSUM: {verdict.cusum_stat:.2f} | VERDICT: {verdict.verdict.value}")
             elif verdict.n_trials % 50 == 0 or verdict.n_trials == 1:
@@ -169,7 +170,8 @@ class BobVerifierNode:
                     "verdict": ThreatCategory.LEGITIMATE.value,
                     "fused_verdict": fused.verdict.value,
                     "fired_arm": fused.fired_arm,
-                    "joint_alpha": fused.joint_alpha
+                    "joint_alpha": fused.joint_alpha,
+                    "decision_trial": None
                 }
             return {
                 "node": "bob_verifier_sink",
@@ -180,6 +182,7 @@ class BobVerifierNode:
                 "effective_alpha_per_arm": fused.effective_alpha_per_arm,
                 "trigger": self.latest_verdict.trigger,
                 "n_trials": self.latest_verdict.n_trials,
+                "decision_trial": getattr(self, "decision_trial_idx", None),
                 "posterior_mean": self.latest_verdict.posterior_mean,
                 "posterior_ci": self.latest_verdict.posterior_ci,
                 "cusum_stat": self.latest_verdict.cusum_stat,
@@ -196,6 +199,7 @@ class BobVerifierNode:
             self.latest_verdict = None
             self.trial_history.clear()
             self._prev_decision_reached = False
+            self.decision_trial_idx = None
             print("[BOB SINK] Verifier reset completed. Ready for next session.")
 
     def start_server(self, host: str = "127.0.0.1") -> None:
