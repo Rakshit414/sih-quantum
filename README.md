@@ -8,6 +8,7 @@
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%20%7C%203.14-blue.svg)](https://www.python.org/downloads/)
 [![Problem Statement](https://img.shields.io/badge/SIH--2026-SIH26141-orange.svg)](https://www.sih.gov.in/)
 [![Mission Track](https://img.shields.io/badge/Mission-National%20Quantum%20Mission%20(NQM)-purple.svg)](docs/NQM_EXECUTIVE_WHITEPAPER.md)
+[![License: MIT](https://img.shields.io/badge/license-MIT-yellow.svg)](LICENSE)
 [![Zero ML](https://img.shields.io/badge/AI%2FML-Zero%20Black--Box%20(Deterministic)-success.svg)](docs/JUDGE_DEFENSE_MANUAL.md)
 
 *Team QUANT · Smart India Hackathon 2026 · Grand Finale Production Release*
@@ -373,6 +374,7 @@ print(f"Chained Block Hash: {block_hash}")  # SHA3-256
   publisher = {GitHub},
   journal   = {GitHub repository},
   howpublished = {\url{https://github.com/Rakshit414/sih-quantum}},
+  license   = {MIT},
   note      = {Smart India Hackathon 2026 (SIH-26141) - National Quantum Mission Track}
 }
 ```
@@ -407,5 +409,5 @@ print(f"Chained Block Hash: {block_hash}")  # SHA3-256
 ---
 
 <div align="center">
-<sub>Team QUANT · Smart India Hackathon 2026 · National Quantum Mission (NQM) Track</sub>
+<sub>MIT License · Team QUANT · Smart India Hackathon 2026 · National Quantum Mission (NQM) Track</sub>
 </div>
