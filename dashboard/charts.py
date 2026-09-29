@@ -578,3 +578,103 @@ def build_phase_space_scatter(
         )
     )
     return fig
+
+
+def build_cusum_trajectory_chart(
+    cusum_history: List[float],
+    threshold_h: float = 8.5
+) -> go.Figure:
+    """
+    Renders the Page (1954) CUSUM sequential surveillance statistic trajectory.
+    """
+    trials = list(range(len(cusum_history)))
+    fig = go.Figure()
+
+    fig.add_trace(go.Scatter(
+        x=trials,
+        y=cusum_history,
+        mode="lines+markers",
+        name="CUSUM S_n",
+        line=dict(color="#0b2545", width=2.5),
+        marker=dict(size=4, color="#ff671f")
+    ))
+
+    fig.add_hline(
+        y=threshold_h,
+        line_dash="dash",
+        line_color="#dc2626",
+        line_width=2,
+        annotation_text=f"Alert Threshold h = {threshold_h:.1f}",
+        annotation_position="top right"
+    )
+
+    fig.update_layout(
+        title=dict(
+            text="<b>Page CUSUM Sequential Cumulative Anomaly Trajectory</b>",
+            font=dict(color="#0b2545", size=13, family=FONT_FAMILY),
+            x=0.01, y=0.98, xanchor="left", yanchor="top"
+        ),
+        xaxis=dict(title=dict(text="Verification Trial Index (n)", font=dict(family=FONT_FAMILY)), gridcolor="#f1f5f9"),
+        yaxis=dict(title=dict(text="CUSUM Cumulative Sum (S_n)", font=dict(family=FONT_FAMILY)), gridcolor="#f1f5f9"),
+        height=280,
+        margin=dict(l=25, r=25, t=44, b=30),
+        paper_bgcolor="#ffffff",
+        plot_bgcolor="#ffffff",
+        font=dict(family=FONT_FAMILY, color="#0f172a")
+    )
+    return fig
+
+
+def build_sprt_trajectory_chart(
+    llr_history: List[float],
+    upper_bound_a: float = 9.21,
+    lower_bound_b: float = -9.21
+) -> go.Figure:
+    """
+    Renders the Wald (1947) SPRT Log-Likelihood Ratio trajectory with acceptance boundaries.
+    """
+    trials = list(range(len(llr_history)))
+    fig = go.Figure()
+
+    fig.add_trace(go.Scatter(
+        x=trials,
+        y=llr_history,
+        mode="lines+markers",
+        name="SPRT LLR (Lambda_n)",
+        line=dict(color="#0284c7", width=2.5),
+        marker=dict(size=4, color="#0b2545")
+    ))
+
+    fig.add_hline(
+        y=upper_bound_a,
+        line_dash="dash",
+        line_color="#dc2626",
+        line_width=2,
+        annotation_text=f"Reject H0: A = +{upper_bound_a:.2f}",
+        annotation_position="top right"
+    )
+
+    fig.add_hline(
+        y=lower_bound_b,
+        line_dash="dash",
+        line_color="#16a34a",
+        line_width=2,
+        annotation_text=f"Accept H0: B = {lower_bound_b:.2f}",
+        annotation_position="bottom right"
+    )
+
+    fig.update_layout(
+        title=dict(
+            text="<b>Wald SPRT Sequential Log-Likelihood Ratio Trajectory</b>",
+            font=dict(color="#0b2545", size=13, family=FONT_FAMILY),
+            x=0.01, y=0.98, xanchor="left", yanchor="top"
+        ),
+        xaxis=dict(title=dict(text="Verification Trial Index (n)", font=dict(family=FONT_FAMILY)), gridcolor="#f1f5f9"),
+        yaxis=dict(title=dict(text="Log-Likelihood Ratio (Lambda_n)", font=dict(family=FONT_FAMILY)), gridcolor="#f1f5f9"),
+        height=280,
+        margin=dict(l=25, r=25, t=44, b=30),
+        paper_bgcolor="#ffffff",
+        plot_bgcolor="#ffffff",
+        font=dict(family=FONT_FAMILY, color="#0f172a")
+    )
+    return fig

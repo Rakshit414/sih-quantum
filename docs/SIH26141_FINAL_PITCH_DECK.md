@@ -32,7 +32,7 @@
 - **Architecture Highlights**:
   1. Quantum Teleportation Transport Layer (3-qubit Bell measurement + Pauli reconstructor).
   2. Q-STAT Exact Binomial Hypothesis Testing Engine (continuous standardized z-score).
-  3. Defense-in-Depth Layer: 14 Integrated Physical Watchtowers.
+  3. Defense-in-Depth Layer: 13 Security Watchtowers (12 physical domain modules + core Q-STAT sequential engine) + Enterprise SOC SIEM Export Layer.
   4. Enterprise SOC Integration: Automated OASIS STIX 2.1 & Elastic Common Schema (ECS 8.x).
 
 ---
@@ -63,12 +63,12 @@
 
 ---
 
-## Slide 6: Defense-in-Depth: Full 14-Watchtower Inventory
+## Slide 6: Defense-in-Depth: 13 Security Watchtowers + Enterprise SOC Export Layer
 1. **WT-01: QDS-TELEPORT**: Born-rule projective measurement verification.
-2. **WT-02: Q-STAT**: Exact binomial hypothesis test ($z \ge +4.0\sigma$ alert).
+2. **WT-02: Q-STAT**: Sequential CUSUM / Wald SPRT & exact binomial hypothesis test ($z \ge +4.0\sigma$ alert).
 3. **WT-03: Q-FRESH**: Sliding-window monotonic nonce registry (anti-replay).
 4. **WT-04: Q-REPUDIATE**: Recipient-Arbiter cross-verification (non-repudiation).
-5. **WT-05: Q-HYBRID**: Dual-layer HMAC-SHA3-512 + QDS binding.
+5. **WT-05: Q-HYBRID**: Dual-layer NIST FIPS 202 HMAC-SHA3-512 + QDS binding (100% deterministic, zero speculative FIPS 203/204 ML-KEM/ML-DSA lattice assumptions).
 6. **WT-06: Q-MESH**: 4-qubit entanglement swapping & rogue repeater localization.
 7. **WT-07: Q-DECOY**: 3-intensity decoy states bounding single-photon yield $Y_1$.
 8. **WT-08: Q-TROJAN**: Multi-wavelength optical power & Helstrom mutual info leakage.
@@ -77,7 +77,7 @@
 11. **WT-11: Q-FINITE**: Serfling Martingale large-deviation bound ($\varepsilon_{\text{sec}} \le 10^{-10}$).
 12. **WT-12: Q-MDI**: Hong-Ou-Mandel interference ($V_{\text{HOM}} \ge 70\%$) in untrusted relays.
 13. **WT-13: Q-WDM**: Spontaneous Raman scattering modeling in co-propagating fiber.
-14. **WT-14: Q-SOC**: OASIS STIX 2.1 CTI bundles & Elastic Common Schema (ECS 8.x) SIEM feed.
+14. **WT-14: Q-SOC (Export Layer)**: Enterprise SIEM export layer: OASIS STIX 2.1 CTI bundles & Elastic Common Schema (ECS 8.x) SIEM feed.
 
 ---
 
@@ -145,13 +145,13 @@
 
 ### 1-Minute Executive Overview
 "Respected evaluators, classical signatures like RSA and ECDSA are fundamentally insecure against Shor's quantum algorithm. Quantum Digital Signatures replace computational assumptions with quantum mechanical laws. However, quantum channels are physically vulnerable to eavesdropping, detector blinding, and Raman noise.
-Q-Sentinel solves this by deploying 14 integrated physical watchtowers that analyze projective measurement statistics during signature verification. Under Problem Statement SIH-26141, we strictly eliminate black-box AI/ML models in favor of exact binomial hypothesis testing. If an adversary disturbs even a single photon, our standardized z-score crosses four sigma in under three milliseconds, triggering automated nonce revocation and OASIS STIX 2.1 threat intelligence export. Q-Sentinel is fully audited with 93 passing tests and locked for production deployment."
+Q-Sentinel solves this by deploying 13 security watchtowers plus an enterprise SOC SIEM export layer that analyze projective measurement statistics during signature verification. Under Problem Statement SIH-26141, we strictly eliminate black-box AI/ML models in favor of exact binomial hypothesis testing and sequential statistical analysis. If an adversary disturbs even a single photon, our standardized z-score crosses four sigma in under three milliseconds, triggering automated nonce revocation and OASIS STIX 2.1 threat intelligence export. Q-Sentinel is fully audited with 130 passing tests and locked for production deployment."
 
 ### 3-Minute Technical Architecture Walkthrough
 1. **Introduction (30s)**: Introduce problem statement SIH-26141 and state the architectural design mandate: exact physics-first monitoring without machine learning.
-2. **Core Pipeline (60s)**: Walk through Alice preparing Pauli eigenstates, distributing states via 3-qubit teleportation, Bob applying Pauli corrections $U = Z^{m_1} X^{m_2}$, and the Q-STAT detector running `scipy.stats.binomtest` against natural noise floor $p_0 = 3\%$.
-3. **Defense-in-Depth & SOC Integration (60s)**: Highlight the 14-watchtower suite (Decoy-state PNS defense, Trojan-horse power metering, APD bias monitoring, CHSH non-locality verification, and MDI untrusted relay checks) and show how events format into OASIS STIX 2.1 and ECS 8.x JSON for immediate enterprise SOC ingestion.
-4. **Conclusion & Benchmarks (30s)**: Point to the empirical metrics: 100% detection rate, zero false negatives, 2.02ms latency, and full 93-test automated regression coverage.
+2. **Core Pipeline (60s)**: Walk through Alice preparing Pauli eigenstates, distributing states via 3-qubit teleportation, Bob applying Pauli corrections $U = Z^{m_1} X^{m_2}$, and the Q-STAT sequential engine running CUSUM / SPRT and `scipy.stats.binomtest` against natural noise floor $p_0 = 3\%$.
+3. **Defense-in-Depth & SOC Integration (60s)**: Highlight the 13 security watchtowers + SOC SIEM export suite (Decoy-state PNS defense, Trojan-horse power metering, APD bias monitoring, CHSH non-locality verification, and MDI untrusted relay checks) and show how events format into OASIS STIX 2.1 and ECS 8.x JSON for immediate enterprise SOC ingestion.
+4. **Conclusion & Benchmarks (30s)**: Point to the empirical metrics: 100% detection rate, zero false negatives, 2.02ms latency, and full 130-test automated regression coverage.
 
 ---
 

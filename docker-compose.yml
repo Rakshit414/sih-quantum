@@ -21,6 +21,40 @@ services:
       timeout: 10s
       retries: 3
 
+  bob_node:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: qsentinel-bob-verifier
+    command: python -m transport.bob_node
+    ports:
+      - "8002:8002"
+    restart: unless-stopped
+
+  eve_channel:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: qsentinel-eve-channel
+    command: python -m transport.eve_channel
+    ports:
+      - "8001:8001"
+    environment:
+      - EVE_ATTACK_SCENARIO=LEGITIMATE
+    depends_on:
+      - bob_node
+    restart: unless-stopped
+
+  alice_node:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: qsentinel-alice-signer
+    command: python -m transport.alice_node
+    depends_on:
+      - eve_channel
+    restart: "no"
+
 volumes:
   qsentinel-data:
     driver: local

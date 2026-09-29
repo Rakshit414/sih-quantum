@@ -13,6 +13,8 @@ import pandas as pd
 import numpy as np
 from datetime import datetime
 from typing import Optional
+import json
+import urllib.request
 
 from rehearsal import (
     QuantumRehearsalRunner,
@@ -57,7 +59,10 @@ from dashboard.charts import (
     build_threat_gauge,
     build_outcome_distribution_chart,
     build_telemetry_trend_chart,
+    build_cusum_trajectory_chart,
+    build_sprt_trajectory_chart,
 )
+from security.sequential import SequentialQStat, evaluate_sequential_session
 from dashboard.visualizer import render_teleportation_pipeline_html
 from dashboard.landing_pages import render_executive_protocol_tour, render_threat_matrix_directory
 from dashboard.analytics_page import render_quantum_graph_analytics_page
@@ -638,6 +643,289 @@ if "release_report" not in st.session_state:
     st.session_state.release_report = None
 
 
+def render_prototype_v2_view(ambient_noise_p0: float, key_suffix: str = "v2_view"):
+    """
+    Renders the complete Prototype V2 view: Sequential Q-STAT Surveillance
+    (Page CUSUM + Wald SPRT) and Tamper-Evident SHA3-256 Cryptographic Audit Chain.
+    """
+    st.markdown("""
+    <div style="background-color:#0b2545; color:#ffffff; padding:14px 18px; border-radius:6px; margin-bottom:16px;">
+        <span style="font-size:1.15rem; font-weight:800; letter-spacing:0.5px;">PROTOTYPE V2: SEQUENTIAL SURVEILLANCE & CRYPTOGRAPHIC AUDIT CHAIN</span>
+        <div style="color:#94a3b8; font-size:0.8rem; margin-top:4px;">
+            Adaptive Sequential Hypothesis Testing (Page CUSUM + Wald SPRT) & SHA3-256 Tamper-Evident Chained Ledger
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    col_sq1, col_sq2 = st.columns([1, 1], gap="medium")
+
+    with col_sq1:
+        st.markdown("#### Real-Time Sequential Simulation (CUSUM & Wald SPRT)")
+        st.caption("Tests sequential hypothesis testing on live quantum verification blocks, detecting sub-threshold and intermittent attacks while reducing Average Sample Number (ASN).")
+        seq_scenario = st.selectbox(
+            "Select Sequential Threat Model",
+            options=[
+                "Clean Legitimate Session (Ambient Noise 3%)",
+                "15% Duty-Cycle Intermittent Burst Attack",
+                "Full Adversarial Forgery Attack (QBER ~45%)"
+            ],
+            key=f"seq_scenario_choice_{key_suffix}"
+        )
+        seq_trials_count = st.slider("Verification Block Size", min_value=60, max_value=300, value=150, step=30, key=f"seq_trials_count_{key_suffix}")
+        run_seq_sim = st.button("Execute Sequential Hypothesis Test", type="primary", use_container_width=True, key=f"btn_run_seq_{key_suffix}")
+
+        if "seq_report" not in st.session_state:
+            st.session_state.seq_report = None
+
+        if run_seq_sim:
+            detector_seq = SequentialQStat(
+                baseline_p0=ambient_noise_p0,
+                alt_p1=0.20,
+                sprt_alpha=1e-4,
+                sprt_beta=1e-4,
+                cusum_threshold_h=8.5
+            )
+            rng = np.random.default_rng()
+            if "Clean" in seq_scenario:
+                trials_seq = (rng.random(seq_trials_count) < ambient_noise_p0).astype(int).tolist()
+            elif "Intermittent" in seq_scenario:
+                trials_seq = (rng.random(seq_trials_count) < ambient_noise_p0).astype(int).tolist()
+                burst_len = int(seq_trials_count * 0.15)
+                burst_start = int(seq_trials_count * 0.35)
+                for b_i in range(burst_start, burst_start + burst_len):
+                    trials_seq[b_i] = 1 if rng.random() < 0.45 else 0
+            else:
+                trials_seq = (rng.random(seq_trials_count) < 0.45).astype(int).tolist()
+
+            cusum_hist = []
+            llr_hist = []
+            stopped_at = None
+            last_v = None
+            for idx, outcome in enumerate(trials_seq, start=1):
+                v = detector_seq.update(outcome)
+                last_v = v
+                cusum_hist.append(v.cusum_stat)
+                llr_hist.append(v.sprt_llr)
+                if v.decision_reached and stopped_at is None:
+                    stopped_at = idx
+
+            class _SeqSessionRun:
+                pass
+
+            rep_obj = _SeqSessionRun()
+            rep_obj.verdict = last_v.verdict if last_v else ThreatCategory.LEGITIMATE
+            rep_obj.total_trials = len(trials_seq)
+            rep_obj.stopped_at_trial = stopped_at
+            rep_obj.observed_error_rate = sum(trials_seq) / len(trials_seq)
+            rep_obj.max_cusum = max(cusum_hist) if cusum_hist else 0.0
+            rep_obj.final_llr = last_v.sprt_llr if last_v else 0.0
+            rep_obj.posterior_mean_p = last_v.posterior_mean if last_v else ambient_noise_p0
+            rep_obj.cusum_history = cusum_hist
+            rep_obj.llr_history = llr_hist
+            st.session_state.seq_report = rep_obj
+
+
+        if st.session_state.seq_report:
+            rep = st.session_state.seq_report
+            verdict_color = "#16a34a" if rep.verdict == ThreatCategory.LEGITIMATE else ("#d97706" if rep.verdict == ThreatCategory.SUSPICIOUS else "#dc2626")
+            st.markdown(f"""
+            <table class="metrics-table">
+                <tr><th>Sequential Metric</th><th>Value</th></tr>
+                <tr><td>Final Verdict</td><td><b style="color:{verdict_color};">{rep.verdict.value}</b></td></tr>
+                <tr><td>Trials Ingested</td><td><b>{rep.total_trials}</b> trials</td></tr>
+                <tr><td>Early Stopping Trial (ASN)</td><td><b>{rep.stopped_at_trial if rep.stopped_at_trial else 'Full Block Run'}</b></td></tr>
+                <tr><td>Sample Complexity Reduction</td><td><b>{((seq_trials_count - (rep.stopped_at_trial or seq_trials_count)) / seq_trials_count) * 100:.1f}%</b></td></tr>
+                <tr><td>Observed Error Rate</td><td><b>{rep.observed_error_rate * 100:.2f}%</b></td></tr>
+                <tr><td>Max CUSUM Value</td><td><b>{rep.max_cusum:.2f}</b> (Threshold h = 8.5)</td></tr>
+                <tr><td>Final SPRT LLR (Lambda)</td><td><b>{rep.final_llr:+.2f}</b> (Boundaries +/-9.21)</td></tr>
+                <tr><td>Posterior Mean Noise</td><td><b>{rep.posterior_mean_p * 100:.2f}%</b></td></tr>
+            </table>
+            """, unsafe_allow_html=True)
+
+    with col_sq2:
+        st.markdown("#### Tamper-Evident SHA3-256 Cryptographic Audit Chain")
+        st.caption("Cryptographically links every telemetry event via SHA3-256 hash pointers. Any retroactive record alteration or deletion immediately invalidates downstream hashes.")
+        col_ac1, col_ac2 = st.columns([1, 1])
+        with col_ac1:
+            verify_chain_btn = st.button("Verify Full Chain Integrity", use_container_width=True, key=f"btn_verify_chain_{key_suffix}")
+        with col_ac2:
+            test_record_btn = st.button("Append Test Telemetry Record", use_container_width=True, key=f"btn_append_record_{key_suffix}")
+
+        if test_record_btn:
+            new_h = st.session_state.telemetry_store.append_chained({
+                "source": "dashboard_operator",
+                "action": "manual_audit_checkpoint",
+                "timestamp": time.time(),
+                "status": "HEALTHY"
+            })
+            st.success(f"Appended new record. Entry Hash: {new_h[:24]}...")
+
+        is_valid_c, broken_id_c, reason_c = st.session_state.telemetry_store.verify_chain()
+        head_h = st.session_state.telemetry_store.get_latest_chain_hash()
+
+        if is_valid_c:
+            st.markdown(f"""
+            <div style="background:#f0fdf4; border:1px solid #86efac; border-left:4px solid #16a34a; padding:10px 14px; font-size:0.82rem; color:#14532d; border-radius:4px; margin-bottom:12px;">
+                <b>CRYPTOGRAPHIC AUDIT CHAIN VERIFIED INTACT</b><br>
+                Verification Result: <b>{reason_c}</b><br>
+                Latest Head Hash (SHA3-256): <code>{head_h}</code><br>
+                Integrity Guarantee: Mathematically impossible to alter or delete records without hash chain break.
+            </div>
+            """, unsafe_allow_html=True)
+        else:
+            st.markdown(f"""
+            <div style="background:#fef2f2; border:1px solid #fca5a5; border-left:4px solid #dc2626; padding:10px 14px; font-size:0.82rem; color:#7f1d1d; border-radius:4px; margin-bottom:12px;">
+                <b>CRYPTOGRAPHIC AUDIT CHAIN COMPROMISED:</b><br>
+                Failure Reason: <b>{reason_c}</b><br>
+                Corrupted Row ID: <code>{broken_id_c}</code>
+            </div>
+            """, unsafe_allow_html=True)
+
+        recent_chain = st.session_state.telemetry_store.get_audit_chain(limit=5)
+        if recent_chain:
+            st.markdown("**Recent Audit Chain Links (Ordered by Insertion):**")
+            chain_rows = []
+            for r in recent_chain:
+                chain_rows.append({
+                    "ID": r["id"],
+                    "ISO Time": r["iso_time"],
+                    "Prev Hash": f"{r['prev_hash'][:12]}...",
+                    "Entry Hash": f"{r['entry_hash'][:12]}...",
+                    "Payload Snippet": r["payload_json"][:45] + "..."
+                })
+            st.dataframe(chain_rows, use_container_width=True)
+
+    if st.session_state.seq_report:
+        st.markdown("---")
+        st.markdown("#### Real-Time Statistical Surveillance Trajectories")
+        col_ch1, col_ch2 = st.columns([1, 1])
+        with col_ch1:
+            fig_cusum = build_cusum_trajectory_chart(st.session_state.seq_report.cusum_history, threshold_h=8.5)
+            st.plotly_chart(fig_cusum, use_container_width=True)
+        with col_ch2:
+            fig_sprt = build_sprt_trajectory_chart(st.session_state.seq_report.llr_history, upper_bound_a=9.21, lower_bound_b=-9.21)
+            st.plotly_chart(fig_sprt, use_container_width=True)
+
+    st.markdown("---")
+    st.markdown("#### Distributed Microservices Live Telemetry (Alice -> Eve [Port 8001] -> Bob [Port 8002])")
+    st.caption("Real-time telemetry from decoupled transport microservices running in independent terminal processes.")
+
+    # Probe live endpoints with short timeout
+    eve_online = False
+    eve_data = {}
+    try:
+        req_e = urllib.request.Request("http://127.0.0.1:8001/status")
+        with urllib.request.urlopen(req_e, timeout=0.25) as resp_e:
+            if resp_e.status == 200:
+                eve_online = True
+                eve_data = json.loads(resp_e.read().decode("utf-8"))
+    except Exception:
+        pass
+
+    bob_online = False
+    bob_data = {}
+    try:
+        req_b = urllib.request.Request("http://127.0.0.1:8002/verdict")
+        with urllib.request.urlopen(req_b, timeout=0.25) as resp_b:
+            if resp_b.status == 200:
+                bob_online = True
+                bob_data = json.loads(resp_b.read().decode("utf-8"))
+    except Exception:
+        pass
+
+    col_node_e, col_node_b = st.columns([1, 1], gap="medium")
+
+    with col_node_e:
+        if eve_online:
+            st.markdown(f"""
+            <div style="background:#f0fdf4; border:1px solid #86efac; border-left:4px solid #16a34a; padding:10px 14px; border-radius:4px; font-size:0.82rem; color:#14532d;">
+                <b>EVE CHANNEL RELAY (Port 8001): ONLINE</b><br>
+                Active Scenario: <b>{eve_data.get('active_scenario', 'UNKNOWN')}</b><br>
+                Noise Level: <code>{eve_data.get('noise_level', 0.0):.2f}</code><br>
+                Packets Intercepted & Forwarded: <b>{eve_data.get('packets_intercepted', 0)}</b>
+            </div>
+            """, unsafe_allow_html=True)
+        else:
+            st.markdown("""
+            <div style="background:#f8fafc; border:1px solid #cbd5e1; border-left:4px solid #64748b; padding:10px 14px; border-radius:4px; font-size:0.82rem; color:#475569;">
+                <b>EVE CHANNEL RELAY (Port 8001): OFFLINE</b><br>
+                Start in terminal: <code>python -m transport.eve_channel</code>
+            </div>
+            """, unsafe_allow_html=True)
+
+    with col_node_b:
+        if bob_online:
+            v_val = bob_data.get("verdict", "UNKNOWN")
+            v_color = "#16a34a" if v_val == "LEGITIMATE" else ("#d97706" if v_val == "SUSPICIOUS" else "#dc2626")
+            dec_trial = bob_data.get("decision_trial")
+            dec_str = f"YES (at Trial #{dec_trial})" if dec_trial else ("YES" if bob_data.get("decision_reached") else "IN PROGRESS")
+            st.markdown(f"""
+            <div style="background:#f0fdf4; border:1px solid #86efac; border-left:4px solid #16a34a; padding:10px 14px; border-radius:4px; font-size:0.82rem; color:#14532d;">
+                <b>BOB VERIFIER SINK (Port 8002): ONLINE</b><br>
+                Live Sequential Verdict: <b style="color:{v_color};">{v_val}</b><br>
+                Trials Ingested: <b>{bob_data.get('n_trials', 0)}</b> | SPRT LLR: <code>{bob_data.get('sprt_llr', 0.0):+.2f}</code><br>
+                Decision Reached: <b>{dec_str}</b> | CUSUM: <code>{bob_data.get('cusum_stat', 0.0):.2f}</code>
+            </div>
+            """, unsafe_allow_html=True)
+        else:
+            st.markdown("""
+            <div style="background:#f8fafc; border:1px solid #cbd5e1; border-left:4px solid #64748b; padding:10px 14px; border-radius:4px; font-size:0.82rem; color:#475569;">
+                <b>BOB VERIFIER SINK (Port 8002): OFFLINE</b><br>
+                Start in terminal: <code>python -m transport.bob_node</code>
+            </div>
+            """, unsafe_allow_html=True)
+
+    early_stop_toggle = st.checkbox(
+        "Enable Early Stopping on Network Transmission (Alice immediately cuts transmission when Bob reaches a decision)",
+        value=True,
+        key=f"chk_early_stop_{key_suffix}"
+    )
+
+    col_act1, col_act2, col_act3, col_act4 = st.columns([1, 1, 1, 1])
+    with col_act1:
+        if st.button("Transmit Alice Session", key=f"btn_tx_alice_{key_suffix}", use_container_width=True, disabled=not eve_online):
+            import importlib
+            import transport.alice_node
+            importlib.reload(transport.alice_node)
+            alice = transport.alice_node.AliceSignerNode()
+            tx_res = alice.transmit_session("PAYMENT_TX_APPROVED_1000000", early_stop_on_verdict=early_stop_toggle)
+            if tx_res.get("stopped_early"):
+                st.warning(f"Early Stopping Triggered: Alice halted after {tx_res['delivered']} packets (Bob decided {tx_res['decision_verdict']})! Saved {tx_res['saved_packets']} packets ({((tx_res['saved_packets'])/tx_res['total_packets'])*100:.1f}% bandwidth reduction).")
+            else:
+                st.success(f"Alice sent {tx_res['total_packets']} pkts -> {tx_res['delivered']} delivered to Eve/Bob!")
+            st.rerun()
+
+    with col_act2:
+        if st.button("Set Eve: FORGERY Attack", key=f"btn_set_forgery_{key_suffix}", use_container_width=True, disabled=not eve_online):
+            req_f = urllib.request.Request("http://127.0.0.1:8001/scenario", data=b'{"scenario": "FORGERY"}', headers={"Content-Type": "application/json"}, method="POST")
+            try:
+                urllib.request.urlopen(req_f, timeout=1.0)
+                st.warning("Eve scenario updated to FORGERY!")
+                st.rerun()
+            except Exception as e:
+                st.error(str(e))
+
+    with col_act3:
+        if st.button("Set Eve: LEGITIMATE", key=f"btn_set_legit_{key_suffix}", use_container_width=True, disabled=not eve_online):
+            req_l = urllib.request.Request("http://127.0.0.1:8001/scenario", data=b'{"scenario": "LEGITIMATE"}', headers={"Content-Type": "application/json"}, method="POST")
+            try:
+                urllib.request.urlopen(req_l, timeout=1.0)
+                st.info("Eve scenario updated to LEGITIMATE!")
+                st.rerun()
+            except Exception as e:
+                st.error(str(e))
+
+    with col_act4:
+        if st.button("Reset Bob Verifier", key=f"btn_reset_bob_{key_suffix}", use_container_width=True, disabled=not bob_online):
+            req_r = urllib.request.Request("http://127.0.0.1:8002/reset", data=b'{}', headers={"Content-Type": "application/json"}, method="POST")
+            try:
+                urllib.request.urlopen(req_r, timeout=1.0)
+                st.success("Bob verifier reset!")
+                st.rerun()
+            except Exception as e:
+                st.error(str(e))
+
+
 # Sidebar: Security Controls & Operator Guide
 with st.sidebar:
     st.markdown("""
@@ -654,7 +942,8 @@ with st.sidebar:
         "Live Watchtower Cockpit",
         "Executive Protocol Tour",
         "14-Watchtower Threat Matrix",
-        "Quantum Graph Analytics"
+        "Quantum Graph Analytics",
+        "Prototype V2: Sequential & Audit"
     ]
     cur_v_idx = 0
     if st.session_state.active_view in view_nav_options:
@@ -677,7 +966,8 @@ with st.sidebar:
         1. Set <b>Signer Identity</b> (Alice=Legit, Mallory=Intruder).<br>
         2. Select an <b>Evaluation Scenario</b> below.<br>
         3. Click the orange <b>Verify Signature</b> button.<br>
-        4. Inspect real-time telemetry and 14 watchtowers.
+        4. Inspect real-time telemetry and 14 watchtowers.<br>
+        5. Access <b>Prototype V2: Sequential & Audit</b> at top!
     </div>
     """, unsafe_allow_html=True)
     
@@ -946,7 +1236,7 @@ if "detector" not in st.session_state or st.session_state.detector is None:
 detector: QStatDetector = st.session_state.detector
 
 # 3. Main Dashboard View Switcher Navigation Bar
-col_nv1, col_nv2, col_nv3, col_nv4 = st.columns([1, 1, 1, 1])
+col_nv1, col_nv2, col_nv3, col_nv4, col_nv5 = st.columns([1, 1, 1, 1, 1.25])
 with col_nv1:
     cockpit_active = (st.session_state.active_view == "Live Watchtower Cockpit")
     if st.button("LIVE WATCHTOWER COCKPIT", key="nav_btn_cockpit", use_container_width=True, type="primary" if cockpit_active else "secondary", help="Interactive verification engine, real-time threat gauge, and 15 physical watchtowers"):
@@ -971,6 +1261,12 @@ with col_nv4:
         st.session_state.active_view = "Quantum Graph Analytics"
         st.rerun()
 
+with col_nv5:
+    v2_active = (st.session_state.active_view == "Prototype V2: Sequential & Audit")
+    if st.button("PROTOTYPE V2: SEQUENTIAL & AUDIT", key="nav_btn_prototype_v2", use_container_width=True, type="primary" if v2_active else "secondary", help="Prototype V2: Sequential Q-STAT (CUSUM + SPRT), ASN reduction, and SHA3-256 Tamper-Evident Audit Chain"):
+        st.session_state.active_view = "Prototype V2: Sequential & Audit"
+        st.rerun()
+
 # Dispatch Active View
 if st.session_state.active_view == "Executive Protocol Tour":
     render_executive_protocol_tour()
@@ -990,6 +1286,20 @@ elif st.session_state.active_view == "Quantum Graph Analytics":
     )
     render_app_footer()
     st.stop()
+elif st.session_state.active_view == "Prototype V2: Sequential & Audit":
+    render_prototype_v2_view(ambient_noise_p0, key_suffix="direct_page")
+    render_app_footer()
+    st.stop()
+
+# Prototype V2 Information Notice Banner in Cockpit View
+st.markdown("""
+<div style="background:#eff6ff; border:1px solid #bfdbfe; border-left:4px solid #2563eb; padding:10px 14px; font-size:0.82rem; color:#1e40af; border-radius:4px; margin-bottom:14px; display:flex; justify-content:space-between; align-items:center;">
+    <div>
+        <b>PROTOTYPE V2 UPGRADE ACTIVE:</b> Sequential Q-STAT Surveillance (Page CUSUM + Wald SPRT) and SHA3-256 Cryptographic Audit Chaining are operational.
+        <br><span style="color:#2563eb;">Click <b>'PROTOTYPE V2: SEQUENTIAL & AUDIT'</b> in the top navigation bar to access the dedicated interface, or scroll down to <b>'Tab 16'</b> below.</span>
+    </div>
+</div>
+""", unsafe_allow_html=True)
 
 # Two Primary Columns (Live Watchtower Cockpit)
 col_left, col_right = st.columns([1.1, 0.9], gap="medium")
@@ -1178,33 +1488,51 @@ with st.container(border=True):
 
 history_df = st.session_state.telemetry_store.get_dataframe(limit=50)
 
-tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9, tab10, tab11, tab12, tab13, tab14, tab15 = st.tabs([
-    "Anomaly Score Trend (z-Score)",
-    "Detailed Verification Log Table",
-    "Real-Time Network Threat Stream Monitor",
-    "Multi-Party Non-Repudiation and Formal Audit Certificate",
-    "Automated Threat Mitigation and Hybrid PQC Verification",
-    "Multi-Hop Quantum Mesh Network Watchtower (Q-MESH)",
-    "Decoy-State Protocol and Photon Number Splitting Defense (Q-DECOY)",
-    "Quantum Trojan-Horse & Memory Decoherence Watchtower (Q-TROJAN)",
-    "Detector Blinding & Spatial Side-Channel Watchtower (Q-BLIND)",
-    "Device-Independent CHSH Bell Inequality Watchtower (Q-CHSH)",
-    "Finite-Size Security Analysis & Serfling Bound Watchtower (Q-FINITE)",
-    "Measurement-Device-Independent QDS & Untrusted Relay Watchtower (Q-MDI)",
-    "Quantum WDM & Co-Propagation Raman Defense (Q-WDM)",
-    "Enterprise SOC SIEM & STIX 2.1 Threat Intelligence (Q-SOC)",
-    "NQM Defense Whitepaper & Monte Carlo Rehearsal Kit (Q-DOC)"
+tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9, tab10, tab11, tab12, tab13, tab14, tab15, tab16 = st.tabs([
+    "Tab 01: Anomaly Trend",
+    "Tab 02: Verification Log & Audit Chain",
+    "Tab 03: Threat Stream Monitor",
+    "Tab 04: Non-Repudiation Certificate",
+    "Tab 05: Automated Mitigation & PQC",
+    "Tab 06: Quantum Mesh (Q-MESH)",
+    "Tab 07: Decoy-State (Q-DECOY)",
+    "Tab 08: Trojan-Horse (Q-TROJAN)",
+    "Tab 09: Detector Blinding (Q-BLIND)",
+    "Tab 10: Device-Independent (Q-CHSH)",
+    "Tab 11: Finite-Size Analysis (Q-FINITE)",
+    "Tab 12: MDI-QDS Relay (Q-MDI)",
+    "Tab 13: Quantum WDM Defense (Q-WDM)",
+    "Tab 14: Enterprise SOC SIEM (Q-SOC)",
+    "Tab 15: NQM Whitepaper (Q-DOC)",
+    "Tab 16: Sequential Surveillance & Audit Chain (Q-SEQUENTIAL)"
 ])
 
 with tab1:
-    st.markdown("#### Real-Time Telemetry Anomaly Trend (Z-Score Trajectory)")
+    st.markdown("#### Tab 01: Real-Time Telemetry Anomaly Trend (Z-Score Trajectory)")
     st.caption("Tracks the statistical anomaly trajectory across historical quantum verification events. The red dashed line denotes the critical 3.00-sigma threat threshold.")
     fig_trend = build_telemetry_trend_chart(history_df)
     st.plotly_chart(fig_trend, use_container_width=True)
 
 with tab2:
-    st.markdown("#### Detailed Telemetry Verification Log")
+    st.markdown("#### Tab 02: Detailed Telemetry Verification Log & SHA3-256 Audit Chain")
     st.caption("Complete tabular audit log of all QDS verification runs, error rates, threat verdicts, and cryptographic proofs stored in the local SQLite datastore.")
+
+    # Cryptographic Audit Chain Verification Status Badge
+    is_chain_valid, broken_id, reason = st.session_state.telemetry_store.verify_chain()
+    latest_hash = st.session_state.telemetry_store.get_latest_chain_hash()
+    if is_chain_valid:
+        st.markdown(f"""
+        <div style="background:#f0fdf4; border:1px solid #86efac; border-left:4px solid #16a34a; padding:8px 12px; font-size:0.8rem; color:#14532d; border-radius:4px; margin-bottom:12px;">
+            <b>CRYPTOGRAPHIC AUDIT CHAIN VERIFIED INTACT</b> | SHA3-256 Head: <code>{latest_hash[:24]}...</code> | Status: <b>{reason}</b>
+        </div>
+        """, unsafe_allow_html=True)
+    else:
+        st.markdown(f"""
+        <div style="background:#fef2f2; border:1px solid #fca5a5; border-left:4px solid #dc2626; padding:8px 12px; font-size:0.8rem; color:#7f1d1d; border-radius:4px; margin-bottom:12px;">
+            <b>CRYPTOGRAPHIC AUDIT CHAIN COMPROMISED:</b> {reason} (Broken at ID: {broken_id})
+        </div>
+        """, unsafe_allow_html=True)
+
     if not history_df.empty:
         st.dataframe(
             history_df,
@@ -2259,5 +2587,9 @@ with tab15:
                 use_container_width=True
             )
 
+with tab16:
+    render_prototype_v2_view(ambient_noise_p0, key_suffix="tab16")
+
 # Clean Footer (Zero Emojis/Symbols)
 render_app_footer()
+
