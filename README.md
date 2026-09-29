@@ -116,7 +116,26 @@ To prevent dispute scenarios where Alice repudiates a signature or sends conflic
 
 ## Installation & Quick Start
 
-### 1 · Clone & Setup
+### Quick Launch (5-Step Setup)
+```bash
+# 1. Clone repository
+git clone https://github.com/Rakshit414/sih-quantum.git
+cd sih-quantum
+
+# 2. Install dependencies (Python 3.10+ / 3.14 supported)
+python -m pip install -r requirements.txt
+
+# 3. Verify health (130/130 tests passing in ~10s)
+python run_tests.py
+
+# 4. Launch interactive dashboard
+streamlit run app.py
+```
+> Open your browser at **`http://localhost:8501`**.
+
+---
+
+### Step-by-Step Installation & Environments
 
 ```bash
 # Clone the repository
@@ -127,12 +146,11 @@ cd sih-quantum
 python -m venv .venv
 source .venv/bin/activate       # Windows: .venv\Scripts\activate
 
-# Install dependencies (Python 3.10+ / 3.14 fully supported)
+# Install dependencies
 python -m pip install -r requirements.txt
 ```
 
-### 2 · Verify System Health (130/130 Tests)
-
+### 2 · Automated Verification Suite
 Execute the comprehensive regression test suite:
 
 ```bash
