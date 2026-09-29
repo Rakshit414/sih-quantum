@@ -6,7 +6,7 @@
 
 ### Release Integrity Summary
 - Release Authority: National Quantum Mission (NQM) Evaluated
-- Master Release Checksum (SHA-256): `c0f9153f3b1dba038ff9a42fddd663e1c297af44239fbc9278ca79ab53f8d508`
+- Master Release Checksum (SHA-256): `3edab3dbe20161a45cf076c71c0c467cf855cca2c7d6f8739ac9bb12a20b520a`
 - Architecture Scope: 40 Engineering Phases (100.0% Complete)
 - Operational Watchtowers: 14 Integrated Physical Detectors
 - Automated Verification: 89+ Unit/Integration Tests (100% Pass Rate)
@@ -23,7 +23,7 @@ a360c7b9f04295e53593deb9d9a9b7a931d73fd453803f5ceaa20ed7ad7dd990  quantum/tomogr
 72739934c2593d9662aa26f8364aef06e245f7ae905166f15ab0bd01a365da8e  quantum/mesh.py
 1abc14bf83638d7f79a8092bfbc15ddfda26d73af485970fe997ad97752c8d58  security/signature.py
 f2986d0d8ee82be8a7f1131e84f36f9713744237c2493781c47ac0ea869f93b7  security/attacks.py
-61085e211c7da7ed05fa47bbd14e2d80eab4175c0244275a8fd8fb00ce7983a6  security/detector.py
+49d55d2cf876b17db9d075a525155791676b7dc801ba7abd4006e130c6b66551  security/detector.py
 55786673b83ba50a650e5bac189adbde2acb722eb81a2c6667b12a9cd78e44f3  security/freshness.py
 798aaa6f2d6d729b92e6fc4e540c8f26d19b455e71e084e23360a210263d8254  security/calibrate.py
 6a8cf8833a01dfd3ef9ce50cb77d37c06b8ea7ea3fd01cdf3b798013da6aeef1  security/multirecipient.py
@@ -37,7 +37,7 @@ f2986d0d8ee82be8a7f1131e84f36f9713744237c2493781c47ac0ea869f93b7  security/attac
 a21929228de7c36d987dbdffa1f8e3963f8578d7a70baeed9089963efad843ad  security/mdi.py
 c99e277aead7cbcd80b57b2bf8cb79db65c9a9c0005b425b5507145b4379d406  security/wdm.py
 e9c5b0fafc3995fdb6afef9907c393abb5a6a9314c1d000f428b1f47bd11f163  analytics/soc.py
-c0a90d1f9fbc444ecd2908a962e0ff6dd921f347d957f1888c3405b061e50530  app.py
+6399b7499ec06fc97076d16d60ac39646dad4577529c5110158e26ee5197cfa8  app.py
 0ac51f082ee84cadf52526f0e296e81b6b272e1df9d5477d995bad9d27419a2e  rehearsal.py
 5fe1178f0f8cfcddfbfe991b117d81ecb2e21241120f4e2b72ca3fddf2551bf6  docs/NQM_EXECUTIVE_WHITEPAPER.md
 ```

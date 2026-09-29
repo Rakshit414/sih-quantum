@@ -1,16 +1,19 @@
 @echo off
 REM ============================================================================
-REM Q-SENTINEL: One-Click Master Release Audit Runner
-REM Smart India Hackathon (SIH-26141) | Grand Unified Release Verification
+REM Q-SENTINEL: One-Click Automated Regression Test Runner
+REM Smart India Hackathon (SIH-26141) | Full Regression Verification
 REM ============================================================================
-title Q-Sentinel - Release Audit Runner
+title Q-Sentinel - Automated Test Suite
 echo.
 echo ============================================================================
-echo   Q-SENTINEL: GRAND UNIFIED RELEASE AUDIT (8 AUDIT PILLARS)
-echo   Verifying Production Freeze & Cryptographic Integrity Checksums
+echo   Q-SENTINEL: AUTOMATED TEST SUITE EXECUTION
+echo   Verifying 100% Pass Rate Across All Quantum Physical Modules
 echo ============================================================================
 echo.
-python release_audit.py
+pushd "%~dp0.."
+python -m pytest tests/ -v
+popd
 echo.
 echo ============================================================================
 pause
+

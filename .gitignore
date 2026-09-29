@@ -16,6 +16,14 @@ venv/
 .venv/
 env/
 
-# IDE files
+# IDE & Editor files
 .vscode/
 .idea/
+*.swp
+*.swo
+
+# Local scratch and logs
+scratch/
+*.log
+*.tmp
+

@@ -1,0 +1,44 @@
+name: Q-Sentinel CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  test-and-audit:
+    name: Test & Release Audit (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: "pip"
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest
+
+      - name: Execute Automated Regression Test Suite (130 Tests)
+        run: |
+          python run_tests.py
+
+      - name: Execute Grand Unified 8-Pillar Release Audit
+        run: |
+          python release_audit.py
+
+      - name: Execute Monte Carlo Benchmark Smoke Test
+        run: |
+          python benchmark.py --runs 10 --seed 42

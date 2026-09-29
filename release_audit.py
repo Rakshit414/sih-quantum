@@ -183,7 +183,9 @@ class GrandUnifiedReleaseAuditor:
             "benchmark.py",
             "verify_demo.py",
             "docs/NQM_EXECUTIVE_WHITEPAPER.md",
-            "docs/JUDGE_DEFENSE_MANUAL.md"
+            "docs/JUDGE_DEFENSE_MANUAL.md",
+            "docs/THREAT_MODEL.md",
+            "docs/ARCHITECTURE.md"
         ]
 
         missing = [m for m in required_modules if not (self.root / m).exists()]
@@ -344,19 +346,31 @@ class GrandUnifiedReleaseAuditor:
         )
 
     def audit_documentation(self) -> AuditInspectionResult:
-        """Check 7: NQM Executive Technical Whitepaper and Judge Defense Manual completeness."""
+        """Check 7: NQM Technical Whitepaper, Threat Model, Architecture, and Defense Manual completeness."""
         t0 = time.perf_counter()
         wp_path = self.root / "docs" / "NQM_EXECUTIVE_WHITEPAPER.md"
         jm_path = self.root / "docs" / "JUDGE_DEFENSE_MANUAL.md"
+        tm_path = self.root / "docs" / "THREAT_MODEL.md"
+        arch_path = self.root / "docs" / "ARCHITECTURE.md"
 
         wp_exists = wp_path.exists()
         jm_exists = jm_path.exists()
+        tm_exists = tm_path.exists()
+        arch_exists = arch_path.exists()
 
         wp_len = len(wp_path.read_text(encoding="utf-8", errors="ignore")) if wp_exists else 0
         jm_len = len(jm_path.read_text(encoding="utf-8", errors="ignore")) if jm_exists else 0
+        tm_len = len(tm_path.read_text(encoding="utf-8", errors="ignore")) if tm_exists else 0
+        arch_len = len(arch_path.read_text(encoding="utf-8", errors="ignore")) if arch_exists else 0
 
-        passed = (wp_exists and jm_exists and wp_len > 5000 and jm_len > 1000)
-        details = f"NQM Whitepaper validated ({wp_len} chars). Defense Manual validated ({jm_len} chars)."
+        passed = (
+            wp_exists and jm_exists and tm_exists and arch_exists and
+            wp_len > 5000 and jm_len > 1000 and tm_len > 2000 and arch_len > 2000
+        )
+        details = (
+            f"NQM Whitepaper ({wp_len} chars), Defense Manual ({jm_len} chars), "
+            f"Threat Model ({tm_len} chars), Architecture ({arch_len} chars) validated."
+        )
         lat = (time.perf_counter() - t0) * 1000.0
 
         return AuditInspectionResult(

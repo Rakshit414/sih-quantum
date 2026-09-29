@@ -23,5 +23,8 @@ if errorlevel 1 (
 echo [*] Launching Q-Sentinel Streamlit Web Dashboard...
 echo [*] Local URL: http://localhost:8501
 echo.
+pushd "%~dp0.."
 python -m streamlit run app.py --server.port 8501 --server.headless false
+popd
 pause
+

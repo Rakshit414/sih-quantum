@@ -4,12 +4,13 @@
 
 **Continuous Threat Surveillance, Sub-Second Early Stopping & Non-Repudiation for Teleportation-Based Quantum Digital Signatures**
 
+[![CI](https://github.com/Rakshit414/sih-quantum/actions/workflows/ci.yml/badge.svg)](https://github.com/Rakshit414/sih-quantum/actions/workflows/ci.yml)
 [![Tests](https://img.shields.io/badge/tests-130%20passed-brightgreen.svg)](tests/)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%20%7C%203.14-blue.svg)](https://www.python.org/downloads/)
 [![Problem Statement](https://img.shields.io/badge/SIH--2026-SIH26141-orange.svg)](https://www.sih.gov.in/)
 [![Mission Track](https://img.shields.io/badge/Mission-National%20Quantum%20Mission%20(NQM)-purple.svg)](docs/NQM_EXECUTIVE_WHITEPAPER.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-yellow.svg)](LICENSE)
-[![Zero ML](https://img.shields.io/badge/AI%2FML-Zero%20Black--Box%20(Deterministic)-success.svg)](docs/JUDGE_DEFENSE_MANUAL.md)
+[![Zero ML](https://img.shields.io/badge/AI%2FML-Zero%20Black--Box%20(Deterministic)-success.svg)](docs/ARCHITECTURE.md)
 
 *Team QUANT · Smart India Hackathon 2026 · Grand Finale Production Release*
 
@@ -19,13 +20,13 @@
 
 ## Abstract
 
-Current public-key cryptosystems (RSA, DSA, ECDSA) are fundamentally vulnerable to polynomial-time factorization via Shor’s algorithm on cryptographically relevant quantum hardware. While **Quantum Digital Signatures (QDS)** provide information-theoretic security guaranteed by the No-Cloning Theorem and Measurement Disturbance, their physical implementations over lossy optical fibers remain exposed to cyber-attacks: **cryptographic state forgery, signer impersonation, stale token replay, and optical side-channel tapping**.
+Current public-key cryptosystems (RSA, DSA, ECDSA) are fundamentally vulnerable to polynomial-time factorization via Shor’s algorithm on cryptographically relevant quantum hardware. While **Quantum Digital Signatures (QDS)** provide theoretical security guaranteed by the No-Cloning Theorem and Measurement Disturbance, their physical implementations over lossy optical fibers remain exposed to cyber-attacks: **cryptographic state forgery, signer impersonation, stale token replay, and optical side-channel tapping**.
 
 **Q-Sentinel** introduces an auditable, quantum-inspired security framework specifically engineered for entanglement-assisted, teleportation-based QDS protocols. It transforms projective measurement streams into a continuous, real-time threat surveillance telemetry pipeline. Operating entirely on standard commodity hardware, Q-Sentinel couples **14 Optical Hardware Watchtowers** with a **Sequential Q-STAT Engine** (Page's CUSUM and Wald's Sequential Probability Ratio Test) to intercept attacks trial-by-trial.
 
 > **A note on architectural constraint (Zero AI/ML).** Per the strict requirements of problem statement **SIH26141**, Q-Sentinel rejects black-box neural networks, heuristic clustering, and generative models. Deep learning models are susceptible to adversarial evasion and cannot provide court-admissible security guarantees. Instead, all detection thresholds and security scores in Q-Sentinel are **100% mathematically deterministic**, derived from closed-form binomial distributions, information-theoretic bounds, and sequential hypothesis testing.
 
-**Headline Result.** During active cryptographic forgery ($\approx 50\%$ projective error rate), Q-Sentinel's sequential engine achieves definitive detection at **Trial 6** ($\text{SPRT LLR} \ge +9.21$, joint $\alpha = 10^{-4}$), halting the quantum optical transmission and **saving 98.5% of quantum channel bandwidth** compared to classical batch protocols. Over 500 Monte Carlo iterations, the framework maintains **100.0% Detection Accuracy**, **0.0% False Acceptance Rate (FAR)**, and a statistical Z-separation of **$+24.71\sigma$** against baseline channel noise.
+**Headline Result.** During active cryptographic forgery ($\approx 50\%$ projective error rate), Q-Sentinel's sequential engine achieves definitive detection at **Trial 6** ($\text{SPRT LLR} \ge +9.21$, joint $\alpha = 10^{-4}$), halting the quantum optical transmission and **saving 98.5% of quantum channel bandwidth** compared to classical batch protocols. Over Monte Carlo benchmarking, the framework demonstrates **0.00% False Acceptance Rate (FAR)** ($0/2000$, 95% Wilson CI: $[0.00\%, 0.19\%]$), **0.00% Hard False Rejection Rate (FRR)** ($0/500$, 95% Wilson CI: $[0.00\%, 0.74\%]$), and a statistical Z-separation of **$+33.26\sigma$** against baseline channel noise.
 
 **Cryptographic Non-Repudiation.** Using a multi-recipient quantum cross-verification exchange (Bob vs. Charlie), Q-Sentinel guarantees signature transferability (discrepancy rate $= 0.0\%$, $z = -0.50\sigma$) and seals all session events in an immutable, **tamper-evident SHA3-256 hash-chained audit ledger** with zero blockchain latency.
 
@@ -33,7 +34,7 @@ Current public-key cryptosystems (RSA, DSA, ECDSA) are fundamentally vulnerable 
 
 ## Highlights
 
-- 🎯 **100% Deterministic Detection** — 100% detection recall across state forgery ($z = +41.1\sigma$), signer impersonation ($z = +26.9\sigma$), stale replay ($>60\text{s}$ TTL), and optical eavesdropping.
+- 🎯 **100% Deterministic Detection** — Mathematically closed-form detection across state forgery ($z = +57.56\sigma$), signer impersonation ($z = +35.08\sigma$), stale replay ($>60\text{s}$ TTL), and optical eavesdropping.
 - ⚡ **Sub-Second Early Stopping** — Wald's SPRT ($A = +9.21, B = -9.21$) and Page's CUSUM ($h = 8.5$) catch tampering at **Trial 6**, slashing Average Sample Number (ASN) by **98.5%**.
 - 🛡️ **14 Optical Hardware Watchtowers** — Real-time surveillance of CHSH Bell non-locality ($S > 2$), Decoy-State Photon Number Splitting (PNS), APD detector blinding, Raman scattering, and Trojan-horse lasers ($<0.01\,\mu\text{W}$).
 - 🌐 **Distributed Microservices Mesh** — Decoupled physical multi-node architecture across Alice (Signer), Eve (Relay on Port 8001), and Bob (Sink on Port 8002) with strict AST import boundary isolation.
@@ -43,23 +44,33 @@ Current public-key cryptosystems (RSA, DSA, ECDSA) are fundamentally vulnerable 
 
 ---
 
-## Empirical Benchmarks & Results
+## Empirical Benchmarks & Statistical Performance
 
 ### 1 · Threat Classification Performance
 
-Performance measured across 500 Monte Carlo runs per scenario with $N = 400$ projective measurement trials (calibrated optical fiber noise floor $p_0 = 2.87\%$):
+Performance measured across 500 Monte Carlo runs per scenario with $N = 400$ projective measurement trials ($8 \text{ tokens} \times 50 \text{ trials/token}$) under calibrated optical fiber noise floor $p_0 = 3.00\%$:
+
+$$\sigma_0 = \sqrt{\frac{p_0(1 - p_0)}{N}} = \sqrt{\frac{0.03 \times 0.97}{400}} \approx 0.008529, \quad z = \frac{\hat{e} - p_0}{\sigma_0}$$
 
 <div align="center">
 
 | Operational Scenario | Observed Error Rate ($\hat{e}$) | Anomaly Score ($z$-Score) | SPRT Decision Trial | Bandwidth Saved | Detection Verdict |
 | :--- | :---: | :---: | :---: | :---: | :---: |
-| **Clean Fiber Baseline** | $2.80\% \pm 0.4\%$ | $-0.12\sigma$ | Trial 400 (Exhaustive) | Baseline | 🟢 **LEGITIMATE** |
-| **State Forgery Attack** | $48.30\% \pm 1.2\%$ | **$+41.14\sigma$** | **Trial 6** | **98.5%** | 🔴 **MALICIOUS** |
-| **Signer Impersonation** | $32.60\% \pm 1.5\%$ | **$+26.92\sigma$** | **Trial 18** | **95.5%** | 🔴 **MALICIOUS** |
+| **Clean Fiber Baseline** | $2.85\% \pm 0.4\%$ | $-0.18\sigma$ | Trial 400 (Exhaustive) | Baseline | 🟢 **LEGITIMATE** |
+| **State Forgery Attack** | $52.09\% \pm 1.2\%$ | **$+57.56\sigma$** | **Trial 6** | **98.5%** | 🔴 **MALICIOUS** |
+| **Signer Impersonation** | $32.92\% \pm 1.5\%$ | **$+35.08\sigma$** | **Trial 18** | **95.5%** | 🔴 **MALICIOUS** |
 | **Stale Replay Attack** | N/A (Expired Nonce) | $\infty$ (Temporal Failure) | Instantaneous | 100.0% | 🔴 **MALICIOUS** |
-| **Optical Tap / Trojan Laser**| $8.50\% \pm 0.8\%$ | $+5.12\sigma$ | Trial 42 | 89.5% | 🟡 **SUSPICIOUS** |
+| **Channel Noise / Jamming** | $37.02\% \pm 1.8\%$ | **$+39.89\sigma$** | **Trial 14** | **96.5%** | 🔴 **MALICIOUS** |
+| **Optical Tap / Trojan Laser**| $8.50\% \pm 0.8\%$ | $+6.45\sigma$ | Trial 42 | 89.5% | 🟡 **SUSPICIOUS** |
 
 </div>
+
+#### Statistical Error Rates & 95% Wilson Confidence Intervals:
+- **False Acceptance Rate (FAR)**: **0.00%** ($0/2000$, Wilson 95% CI: $[0.00\%, 0.19\%]$). Attack states ($e \ge 32.9\%$) produce $z \ge +35\sigma$, rendering false acceptance mathematically negligible ($p < 10^{-200}$).
+- **Hard False Rejection Rate (FRR to MALICIOUS)**: **0.00%** ($0/500$, Wilson 95% CI: $[0.00\%, 0.74\%]$). Requires $z \ge 4.0$, which under $H_0$ occurs with theoretical probability $P(Z \ge 4.0) \approx 3.17 \times 10^{-5}$.
+- **Honest Warning Rate (SUSPICIOUS)**: **~2.28%** nominal theoretical $\alpha$ for $2.0 \le z < 4.0$ (observed $\approx 1$ in 50 runs), which triggers a non-disruptive pilot-frame recalibration rather than hard transaction abort.
+
+---
 
 ### 2 · Multi-Party Non-Repudiation Cross-Verification
 
@@ -90,7 +101,7 @@ To prevent dispute scenarios where Alice repudiates a signature or sends conflic
                    │
                    ▼
 [ ADVERSARIAL NETWORK RELAY (Eve Daemon on HTTP Port 8001) ]
-  • Threat Scenarios: Clean Noise (2.87%) | Forgery (~50%) | Impersonation | Replay (>60s TTL).
+  • Threat Scenarios: Clean Noise (3.0%) | Forgery (~50%) | Impersonation | Replay (>60s TTL).
   • Simulates physical fiber degradation, beam splitting (PNS), and detector blinding.
                    │
                    ▼
@@ -112,6 +123,9 @@ To prevent dispute scenarios where Alice repudiates a signature or sends conflic
   • Enterprise SIEM Integration: OASIS STIX 2.1 JSON + Elastic Common Schema (ECS)
 ```
 
+Detailed architectural diagrams and state flow: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).  
+Formal adversary models and security bounds: [`docs/THREAT_MODEL.md`](docs/THREAT_MODEL.md).  
+
 ---
 
 ## Installation & Quick Start
@@ -132,6 +146,23 @@ python run_tests.py
 streamlit run app.py
 ```
 > Open your browser at **`http://localhost:8501`**.
+
+---
+
+### Docker Containerization
+
+Run Q-Sentinel in an isolated, non-root Linux container:
+
+```bash
+# Build Docker image
+docker build -t qsentinel:latest .
+
+# Run container (headless web dashboard on port 8501)
+docker run -p 8501:8501 qsentinel:latest
+
+# Or launch multi-container stack via Docker Compose
+docker compose up
+```
 
 ---
 
@@ -168,12 +199,12 @@ To immediately explore the 16-tab SOC Cockpit, 3D Bloch spheres, Born-rule valid
 ```bash
 streamlit run app.py
 ```
-*(Or cross-platform launcher: `python run_qsentinel.py`)*  
+*(Or cross-platform launcher: `python run_qsentinel.py`, Windows script: `scripts/run_qsentinel.bat`, Linux script: `scripts/run_qsentinel.sh`)*  
 Open your browser at **`http://localhost:8501`**.
 
 ---
 
-#### Option B: Distributed Microservices Mode (Recommended for Full Evaluation)
+#### Option B: Distributed Microservices Mode (Decoupled Multi-Process)
 To experience the true decoupled physical multi-process architecture across independent HTTP sockets:
 
 Open 3 separate terminals:
@@ -196,8 +227,11 @@ streamlit run app.py
 # Execute the Grand Unified 8-Pillar Release Audit
 python run_audit.py
 
-# Execute Monte Carlo performance benchmarking (50 runs × 50 trials)
-python benchmark.py --runs 50 --trials 50
+# Execute Monte Carlo performance benchmarking (50 runs × 50 trials, reproducible seed)
+python benchmark.py --runs 50 --trials 50 --seed 42
+
+# Execute full 500-iteration publication benchmark
+python benchmark.py --runs 500 --seed 42
 
 # Execute comparative blind red-team evaluation (V1 vs V2 Sequential)
 python benchmark_v2.py
@@ -206,10 +240,20 @@ python benchmark_v2.py
 
 ---
 
+## Limitations & Operational Scope
+
+1. **Optical Fiber Attenuation & Range**: In unamplified standard single-mode optical fiber ($\approx 0.2\,\text{dB/km}$ attenuation at 1550 nm), single-photon quantum communication is physically distance-bounded ($\approx 100\text{--}150\,\text{km}$) without trusted intermediate nodes or quantum repeaters.
+2. **Classical Channel Availability**: Q-Sentinel assumes the classical communication channel provides availability; complete denial-of-service (such as physical fiber cuts) halts transactions securely (fail-closed) without compromising unforgeability.
+3. **Finite Block Length Effects**: Asymptotic security bounds require finite-size statistical corrections for short signature lengths, modeled via Serfling's inequality in `security/finite.py`.
+4. **Simulation Scope**: This codebase provides a high-fidelity numerical state-vector and density-matrix quantum physics engine executing on classical CPUs. Direct physical fiber deployments require hardware DAC/ADC drivers and single-photon avalanche photodiode (SPAD) instruments.
+
+---
+
 ## Repository Structure
 
 ```
 sih-quantum/
+├── .github/workflows/ci.yml    ← Multi-Python (3.10-3.12) GitHub Actions CI workflow
 ├── app.py                      ← Interactive Streamlit SOC Mission Control (16 Tabs)
 ├── run_qsentinel.py            ← Cross-platform single-command dashboard launcher
 ├── run_tests.py                ← 130-test regression test suite runner
@@ -218,6 +262,15 @@ sih-quantum/
 ├── benchmark.py                ← Monte Carlo statistical performance benchmark
 ├── benchmark_v2.py             ← Phase 45 comparative blind evaluation benchmark
 ├── requirements.txt            ← Dependency manifest (NumPy, SciPy, Streamlit, Plotly)
+├── Dockerfile                  ← Production multi-stage Docker container specification
+├── docker-compose.yml          ← Orchestrated container stack configuration
+├── LICENSE                     ← Open source MIT License
+│
+├── scripts/                    ← One-click execution wrappers
+│   ├── run_qsentinel.bat       ← Windows one-click dashboard launcher
+│   ├── run_tests.bat           ← Windows automated test suite runner
+│   ├── run_audit.bat           ← Windows master release audit runner
+│   └── run_qsentinel.sh        ← Linux / macOS shell execution launcher
 │
 ├── transport/                  ← Distributed Decoupled Microservices (Phase 43)
 │   ├── alice_node.py           ← Alice Signer client with dynamic early stopping
@@ -238,7 +291,7 @@ sih-quantum/
 │   ├── attacks.py              ← Active forgery, impersonation, noise, & replay injectors
 │   ├── detector.py             ← Classical Q-STAT engine (exact binomial test, z-score)
 │   ├── sequential.py           ← Sequential Q-STAT (Page CUSUM h=8.5, Wald SPRT A=9.21)
-│   ├── calibrate.py            ← Dynamic Noise Calibrator (Phase 47 pilot-frame tracking)
+│   ├── calibrate.py            ← Dynamic Noise Calibrator (pilot-frame tracking)
 │   ├── chsh.py                 ← CHSH Bell inequality non-locality watchtower (S > 2)
 │   ├── decoy.py                ← Decoy-state Poissonian photon number splitting (PNS) detector
 │   ├── trojan.py               ← Trojan-horse laser & Lindblad quantum memory decoherence filter
@@ -248,13 +301,15 @@ sih-quantum/
 │   └── multirecipient.py       ← Multi-party non-repudiation cross-verification & certificate minting
 │
 ├── analytics/                  ← Telemetry Persistence & Enterprise SIEM Integration
-│   ├── metrics.py              ← Confusion matrix, FAR, FRR, accuracy, detection latency
+│   ├── metrics.py              ← Confusion matrix, FAR, FRR, Wilson CI, accuracy, latency
 │   ├── history.py              ← SQLite ACID datastore with SHA3-256 hash chaining
 │   └── soc.py                  ← OASIS STIX 2.1 JSON threat intelligence & Elastic Common Schema (ECS)
 │
 ├── docs/                       ← Scientific Whitepapers & Formal Defense Assets
+│   ├── THREAT_MODEL.md                  ← Formal adversary capabilities & attack bounds
+│   ├── ARCHITECTURE.md                  ← 4-tier architectural specification & formulas
+│   ├── JUDGE_DEFENSE_MANUAL.md          ← Evaluator defense rationale & math whiteboard guide
 │   ├── NQM_EXECUTIVE_WHITEPAPER.md      ← National Quantum Mission technical paper
-│   ├── JUDGE_DEFENSE_MANUAL.md          ← Evaluator objection handling & mathematical proofs
 │   ├── SIH26141_FINAL_PITCH_DECK.md     ← 12-slide executive hackathon presentation deck
 │   ├── RELEASE_MANIFEST.md              ← Master SHA-256 release integrity manifest
 │   └── RELEASE_AUDIT_CERTIFICATE.json   ← Cryptographic release audit certificate
@@ -264,6 +319,7 @@ sih-quantum/
     ├── test_teleport.py        ← Teleportation fidelity & Pauli correction tests
     ├── test_security.py        ← Attack injection & Q-STAT detection tests
     ├── test_sequential.py      ← Page CUSUM & Wald SPRT early stopping tests
+    ├── test_deployment.py      ← Launchers, Docker, and packaging verification tests
     ├── test_import_boundary.py ← Strict AST import isolation boundary invariants
     └── test_release_audit.py   ← Production release freeze & manifest verification tests
 ```
@@ -299,8 +355,8 @@ print(f"Teleportation Reconstruction Fidelity: {fidelity:.6f}")  # 1.000000
 ```python
 from security.sequential import SequentialQStat, SequentialHypothesisConfig
 
-# Initialize sequential surveillance engine (Noise floor p0=2.87%, Forgery p1=50%)
-config = SequentialHypothesisConfig(p0=0.0287, p1=0.50, alpha=1e-4, beta=1e-4)
+# Initialize sequential surveillance engine (Noise floor p0=3.0%, Forgery p1=50%)
+config = SequentialHypothesisConfig(p0=0.03, p1=0.50, alpha=1e-4, beta=1e-4)
 qstat = SequentialQStat(config)
 
 # Ingest active forgery stream trial-by-trial
@@ -320,7 +376,7 @@ for trial_idx in range(1, 20):
 
 ```python
 from security.multirecipient import MultiRecipientCrossVerifier
-from analytics.history import VerificationHistoryStore
+from analytics.history import TelemetryStore
 
 # Verify signature transferability between Bob and Charlie
 verifier = MultiRecipientCrossVerifier()
@@ -331,7 +387,7 @@ exchange_result = verifier.verify_transferability(
 )
 
 # Store event with immutable SHA3-256 hash chaining
-db = VerificationHistoryStore()
+db = TelemetryStore()
 record_id, block_hash = db.record_verification(
     signer="Alice",
     payload="Authorize Wire Transfer $500,000",
@@ -343,23 +399,6 @@ record_id, block_hash = db.record_verification(
 print(f"Non-Repudiation Status: {exchange_result.status}")  # PASSED (TRANSFERABLE)
 print(f"Chained Block Hash: {block_hash}")  # SHA3-256
 ```
-
----
-
-## Engineering Roadmap & Milestone Verification
-
-| Phase | Milestone Description | Modules | Status |
-|:---|:---|:---|:---:|
-| **Phases 01–05** | Quantum Teleportation, Pauli Bases & Bell Pairs | `quantum/state.py`, `quantum/bell.py` | ✅ Complete |
-| **Phases 06–10** | QDS Protocol, Freshness Nonces & Attack Injectors | `security/signature.py`, `security/attacks.py` | ✅ Complete |
-| **Phases 11–15** | Q-STAT Detection Engine & Projective Measurement | `security/detector.py`, `quantum/measure.py` | ✅ Complete |
-| **Phases 16–20** | Physical Hardware Watchtowers (CHSH, Decoy, Trojan) | `security/chsh.py`, `security/decoy.py` | ✅ Complete |
-| **Phases 21–25** | APD Blinding, MDI Relay, WDM & Mesh Routing | `security/blind.py`, `security/wdm.py` | ✅ Complete |
-| **Phases 26–30** | Multi-Recipient Non-Repudiation & Audit Certificate | `security/multirecipient.py` | ✅ Complete |
-| **Phases 31–35** | Enterprise SOC Integration (OASIS STIX 2.1 & ECS) | `analytics/soc.py`, `analytics/history.py` | ✅ Complete |
-| **Phases 36–40** | 16-Tab Streamlit Cockpit & 8-Pillar Release Audit | `app.py`, `release_audit.py` | ✅ Complete |
-| **Phases 41–45** | Decoupled Multi-Node Microservices (Ports 8000–8002) | `transport/`, `evaluation/` | ✅ Complete |
-| **Phases 46–50** | Sequential Q-STAT (CUSUM / SPRT) & SHA3-256 Ledger | `security/sequential.py`, `analytics/history.py` | ✅ Complete |
 
 ---
 

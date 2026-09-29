@@ -22,11 +22,14 @@ def test_launchers_exist_and_valid():
     }
 
     for filename, expected_cmd in launchers.items():
-        file_path = workspace_root / filename
-        assert file_path.exists(), f"Launcher script {filename} is missing."
+        file_path = workspace_root / "scripts" / filename
+        if not file_path.exists():
+            file_path = workspace_root / filename
+        assert file_path.exists(), f"Launcher script {filename} is missing from scripts/ directory."
         assert file_path.stat().st_size > 0, f"Launcher script {filename} is empty."
         content = file_path.read_text(encoding="utf-8")
         assert expected_cmd in content, f"Expected command '{expected_cmd}' not found in {filename}."
+
 
 
 def test_docker_configuration_integrity():

@@ -22,4 +22,7 @@ echo "[*] Launching Q-Sentinel Streamlit Web Dashboard..."
 echo "[*] Local URL: http://localhost:8501"
 echo ""
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "${SCRIPT_DIR}/.."
 python3 -m streamlit run app.py --server.port 8501 --server.headless false
+
