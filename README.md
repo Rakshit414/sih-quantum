@@ -424,28 +424,37 @@ Machine-readable metadata: [`CITATION.cff`](CITATION.cff).
 
 ## References & Foundational Literature
 
-### 1 · Quantum Protocols & Entanglement Foundations
-1. Bennett, C. H., Brassard, G., Crépeau, C., Jozsa, R., Peres, A., & Wootters, W. K. (1993). *Teleporting an unknown quantum state via dual classical and Einstein-Podolsky-Rosen channels.* Physical Review Letters, 70(13), 1895. [doi:10.1103/PhysRevLett.70.1895](https://doi.org/10.1103/PhysRevLett.70.1895)
-2. Gottesman, D., & Chuang, I. (2001). *Quantum digital signatures.* arXiv preprint. [quant-ph/0105032](https://arxiv.org/abs/quant-ph/0105032)
-3. Ekert, A. K. (1991). *Quantum cryptography based on Bell’s theorem.* Physical Review Letters, 67(6), 661. [doi:10.1103/PhysRevLett.67.661](https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.67.661)
-4. Pironio, S., et al. (2010). *Random numbers certified by Bell’s theorem.* Nature, 464(7291), 1021–1024. [PubMed: 20393558](https://pubmed.ncbi.nlm.nih.gov/20393558/)
+### 1 · Quantum Protocols & Signature Foundations
+1. **Gottesman, D., & Chuang, I. (2001).** *Quantum Digital Signatures.* arXiv preprint. [arXiv:quant-ph/0105032](https://arxiv.org/abs/quant-ph/0105032)  
+   *(Foundational protocol for quantum public keys, Pauli eigenstate verification, and information-theoretic unforgeability; implemented in `security/signature.py`).*
+2. **Bennett, C. H., Brassard, G., Crépeau, C., Jozsa, R., Peres, A., & Wootters, W. K. (1993).** *Teleporting an unknown quantum state via dual classical and Einstein-Podolsky-Rosen channels.* Physical Review Letters, 70(13), 1895. [Semantic Scholar Free PDF](https://www.semanticscholar.org/paper/Teleporting-an-unknown-quantum-state-via-dual-and-Bennett-Brassard/e0f06f52e5058fc94c34a2c2626e2e9c1db16a03) | [doi:10.1103/PhysRevLett.70.1895](https://doi.org/10.1103/PhysRevLett.70.1895)  
+   *(Foundational 3-qubit teleportation, Bell-state measurement, and Pauli corrections $U = Z^{m_1} X^{m_2}$; implemented in `quantum/teleport.py`).*
+3. **Ekert, A. K. (1991).** *Quantum cryptography based on Bell’s theorem.* Physical Review Letters, 67(6), 661. [Semantic Scholar Free PDF](https://www.semanticscholar.org/paper/Quantum-cryptography-based-on-Bell's-theorem.-Ekert/7f08d6d539556a38618e792c90c749b5c306d860) | [doi:10.1103/PhysRevLett.67.661](https://doi.org/10.1103/PhysRevLett.67.661)  
+   *(Entanglement-based security, EPR Bell pairs $|\Phi^+\rangle$, and CHSH non-locality verification; implemented in `quantum/bell.py` and `security/chsh.py`).*
 
-### 2 · Optical Hardware Security & National Defense Field Deployments
-5. Gisin, N., Fasel, S., Kraus, B., Zbinden, H., & Ribordy, G. (2006). *Trojan-horse attacks on quantum-key-distribution systems.* Physical Review A, 73(2), 022320. [doi:10.1103/PhysRevA.73.022320](https://journals.aps.org/pra/abstract/10.1103/PhysRevA.73.022320)
-6. DRDO & IIT Delhi (2024). *Demonstration of Various Quantum Communication Technologies.* Ministry of Defence, Government of India Press Release. [drdo.gov.in](https://drdo.gov.in/drdo/en/documents/press-release/drdo-and-iit-delhi-organise-demonstration-various-quantum-communication)
-7. DRDO & IIT Delhi (2025). *Free-Space Entanglement-Based Quantum Communication Demonstration.* Ministry of Defence, Government of India Press Release. [drdo.gov.in](https://drdo.gov.in/drdo/en/documents/press-release/drdo-iit-delhi-demonstrate-quantum-entanglement-based-free-space-quantum)
-8. QNu Labs (Bengaluru). *Armos QKD System & Tropos QRNG Architecture.* Sovereign Indian Quantum Cryptography Whitepapers. [qnulabs.com](https://www.qnulabs.com/download-center)
+### 2 · Optical Hardware Security & Physical Watchtowers
+4. **Gisin, N., Fasel, S., Kraus, B., Zbinden, H., & Ribordy, G. (2006).** *Trojan-horse attacks on quantum-key-distribution systems.* Physical Review A, 73(2), 022320. [Semantic Scholar Free PDF](https://www.semanticscholar.org/paper/Trojan-horse-attacks-on-quantum-key-distribution-Gisin-Fasel/748880628e9d3e8e390c50d32ca4a3ff0d6bb6c4) | [doi:10.1103/PhysRevA.73.022320](https://doi.org/10.1103/PhysRevA.73.022320)  
+   *(Multi-spectral optical filtering, back-reflection power thresholds $<0.01\,\mu\text{W}$, and Trojan-horse laser countermeasures; implemented in `security/trojan.py`).*
+5. **Lydersen, L., Wiechers, C., Wittmann, C., Elser, D., Skaar, J., & Makarov, V. (2010).** *Hacking commercial quantum cryptography systems by tailored bright illumination.* Nature Photonics, 4, 686–689. [arXiv:1008.4593](https://arxiv.org/abs/1008.4593)  
+   *(Avalanche Photodiode / APD detector blinding and Geiger-mode saturation watchtower; implemented in `security/blind.py`).*
+6. **Lo, H.-K., Ma, X., & Chen, K. (2005).** *Decoy state quantum key distribution.* Physical Review Letters, 94(23), 230501. [arXiv:quant-ph/0411047](https://arxiv.org/abs/quant-ph/0411047)  
+   *(Multi-intensity decoy pulse statistics against photon number splitting / PNS attacks; implemented in `security/decoy.py`).*
+7. **Lo, H.-K., Curty, M., & Qi, B. (2012).** *Measurement-device-independent quantum key distribution.* Physical Review Letters, 108(13), 130503. [arXiv:1109.1473](https://arxiv.org/abs/1109.1473)  
+   *(Measurement-Device-Independent / MDI untrusted relay architecture eliminating detector side-channels; implemented in `security/mdi.py`).*
 
 ### 3 · Sequential Statistics & Real-Time Threat Surveillance
-9. Wald, A. (1945). *Sequential tests of statistical hypotheses.* The Annals of Mathematical Statistics, 16(2), 117–186. [doi:10.1214/aoms/1177731118](https://doi.org/10.1214/aoms/1177731118)
-10. Page, E. S. (1954). *Continuous inspection schemes.* Biometrika, 41(1/2), 100–115. [doi:10.1093/biomet/41.1-2.100](https://doi.org/10.1093/biomet/41.1-2.100)
-11. Lorden, G. (1971). *Procedures for reacting to a change in distribution.* The Annals of Mathematical Statistics, 42(6), 1897–1908. [Caltech Authors](https://authors.library.caltech.edu/records/n9ryc-0sr08)
-12. Adams, R. P., & MacKay, D. J. (2007). *Bayesian online changepoint detection.* arXiv preprint. [arXiv:0710.3742](https://arxiv.org/abs/0710.3742)
+8. **Wald, A. (1945).** *Sequential tests of statistical hypotheses.* The Annals of Mathematical Statistics, 16(2), 117–186. [Project Euclid Open Access](https://projecteuclid.org/journals/annals-of-mathematical-statistics/volume-16/issue-2/Sequential-Tests-of-Statistical-Hypotheses/10.1214/aoms/1177731118.full) | [doi:10.1214/aoms/1177731118](https://doi.org/10.1214/aoms/1177731118)  
+   *(Wald's Sequential Probability Ratio Test / SPRT enabling sub-second early stopping at Trial 6 with 98.5% channel bandwidth savings; implemented in `security/sequential.py`).*
+9. **Page, E. S. (1954).** *Continuous inspection schemes.* Biometrika, 41(1/2), 100–115. [Semantic Scholar Free Summary](https://www.semanticscholar.org/paper/Continuous-Inspection-Schemes-Page/33fcb7496695b281f62bca6ad457c15433297a76) | [doi:10.1093/biomet/41.1-2.100](https://doi.org/10.1093/biomet/41.1-2.100)  
+   *(Cumulative Sum / CUSUM control chart with $h=8.5, k=0.18$ for catching micro-burst and intermittent tampering; implemented in `security/sequential.py`).*
 
-### 4 · Cryptographic Standards & Post-Quantum Cryptography (PQC)
-13. National Institute of Standards and Technology (NIST). (2015). *SHA-3 Standard: Permutation-Based Hash and Extendable-Output Functions.* FIPS PUB 202. [doi:10.6028/NIST.FIPS.202](https://doi.org/10.6028/NIST.FIPS.202)
-14. National Institute of Standards and Technology (NIST). (2024). *Module-Lattice-Based Digital Signature Standard (ML-DSA).* FIPS PUB 204. [csrc.nist.gov](https://csrc.nist.gov/pubs/fips/204/final)
-15. National Institute of Standards and Technology (NIST). (2024). *Stateless Hash-Based Digital Signature Standard (SLH-DSA).* FIPS PUB 205. [csrc.nist.gov](https://csrc.nist.gov/pubs/fips/205/final)
+### 4 · Cryptographic Integrity Standards & National Deployments
+10. **National Institute of Standards and Technology (NIST). (2015).** *SHA-3 Standard: Permutation-Based Hash and Extendable-Output Functions.* FIPS PUB 202. [NIST CSRC Open Access](https://csrc.nist.gov/pubs/fips/202/final) | [doi:10.6028/NIST.FIPS.202](https://doi.org/10.6028/NIST.FIPS.202)  
+    *(Federal standard for immutable SHA3-256 hash-chaining audit ledgers and HMAC-SHA3-512 anti-replay tokens; implemented in `analytics/history.py` and `security/freshness.py`).*
+11. **Defence Research and Development Organisation (DRDO) & IIT Delhi (2024 & 2025).** *Demonstrations of Sovereign Quantum Communication Technologies & Free-Space Entanglement.* Ministry of Defence, Government of India. [DRDO Press Release (2024)](https://drdo.gov.in/drdo/en/documents/press-release/drdo-and-iit-delhi-organise-demonstration-various-quantum-communication) | [DRDO Press Release (2025)](https://drdo.gov.in/drdo/en/documents/press-release/drdo-iit-delhi-demonstrate-quantum-entanglement-based-free-space-quantum)  
+    *(Indian sovereign defense field deployments aligning with Problem Statement SIH-26141 under the National Quantum Mission).*
+12. **QNu Labs (Bengaluru).** *Armos QKD System & Tropos QRNG Architecture.* Sovereign Indian Quantum Cryptography Deployments. [QNu Labs Official Portal](https://www.qnulabs.com/)  
+    *(Commercial Indian hardware integration reference for physical single-photon detectors and quantum entropy sources).*
 
 ---
 
