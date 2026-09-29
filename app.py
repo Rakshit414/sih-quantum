@@ -884,8 +884,10 @@ def render_prototype_v2_view(ambient_noise_p0: float, key_suffix: str = "v2_view
     col_act1, col_act2, col_act3, col_act4 = st.columns([1, 1, 1, 1])
     with col_act1:
         if st.button("Transmit Alice Session", key=f"btn_tx_alice_{key_suffix}", use_container_width=True, disabled=not eve_online):
-            from transport.alice_node import AliceSignerNode
-            alice = AliceSignerNode()
+            import importlib
+            import transport.alice_node
+            importlib.reload(transport.alice_node)
+            alice = transport.alice_node.AliceSignerNode()
             tx_res = alice.transmit_session("PAYMENT_TX_APPROVED_1000000", early_stop_on_verdict=early_stop_toggle)
             if tx_res.get("stopped_early"):
                 st.warning(f"Early Stopping Triggered: Alice halted after {tx_res['delivered']} packets (Bob decided {tx_res['decision_verdict']})! Saved {tx_res['saved_packets']} packets ({((tx_res['saved_packets'])/tx_res['total_packets'])*100:.1f}% bandwidth reduction).")
