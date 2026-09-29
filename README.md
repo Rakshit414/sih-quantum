@@ -220,12 +220,12 @@ sih-quantum/
 │   ├── history.py              # SQLite ACID-compliant persistence & SHA3-256 chain
 │   └── soc.py                  # OASIS STIX 2.1 JSON & Elastic Common Schema (ECS)
 │
-├── docs/                       # Executive Presentation & Defense Assets
-│   ├── presentation_deck_v2.html # 16:9 Widescreen visual slide deck
-│   ├── SLIDE_WORKFLOW_AND_TECH_STACK.md # Copy-paste prompt & slide breakdown
-│   ├── VIDEO_DEMO_SCRIPT_SIH26141.md    # Full government-ready video demo script
+├── docs/                       # Executive Scientific & Defense Assets
+│   ├── NQM_EXECUTIVE_WHITEPAPER.md      # National Quantum Mission formal whitepaper
 │   ├── JUDGE_DEFENSE_MANUAL.md          # Defense manual, Q&A, and math proofs
-│   └── NQM_EXECUTIVE_WHITEPAPER.md      # National Quantum Mission formal whitepaper
+│   ├── SIH26141_FINAL_PITCH_DECK.md     # Executive hackathon pitch deck
+│   ├── RELEASE_MANIFEST.md              # Cryptographic SHA-256 build manifest
+│   └── RELEASE_AUDIT_CERTIFICATE.json   # Automated release certificate
 │
 └── tests/                      # 130 Automated Tests (100% Pass Rate)
     ├── test_quantum.py         # Quantum state & Pauli tests
@@ -238,12 +238,12 @@ sih-quantum/
 
 ---
 
-## 🏆 Presentation & Evaluation Resources
+## 🏆 Defense & Evaluation Resources
 
-- 📽️ **Interactive Visual Presentation Slides (16:9)**: Open [`docs/presentation_deck_v2.html`](docs/presentation_deck_v2.html) in any web browser.
-- 📋 **AI Presentation Prompt Guide (ChatGPT / Claude / Gamma)**: Review [`docs/SLIDE_WORKFLOW_AND_TECH_STACK.md`](docs/SLIDE_WORKFLOW_AND_TECH_STACK.md).
-- 🎬 **Video Walkthrough Demonstration Script**: Review [`docs/VIDEO_DEMO_SCRIPT_SIH26141.md`](docs/VIDEO_DEMO_SCRIPT_SIH26141.md).
+- 📜 **National Quantum Mission Whitepaper**: Review [`docs/NQM_EXECUTIVE_WHITEPAPER.md`](docs/NQM_EXECUTIVE_WHITEPAPER.md).
 - 🛡️ **Judge Defense & Q&A Manual**: Review [`docs/JUDGE_DEFENSE_MANUAL.md`](docs/JUDGE_DEFENSE_MANUAL.md).
+- 📊 **Executive Pitch Deck**: Review [`docs/SIH26141_FINAL_PITCH_DECK.md`](docs/SIH26141_FINAL_PITCH_DECK.md).
+- 🔐 **Release Audit Certificate**: Review [`docs/RELEASE_AUDIT_CERTIFICATE.json`](docs/RELEASE_AUDIT_CERTIFICATE.json).
 
 ---
 
