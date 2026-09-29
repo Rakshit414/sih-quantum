@@ -6,7 +6,7 @@
 
 ### Release Integrity Summary
 - Release Authority: National Quantum Mission (NQM) Evaluated
-- Master Release Checksum (SHA-256): `3f4138607e787fe329ff6db542e6645a2d9a509fe1cdb2133b2d85d0b9d13b7f`
+- Master Release Checksum (SHA-256): `c0f9153f3b1dba038ff9a42fddd663e1c297af44239fbc9278ca79ab53f8d508`
 - Architecture Scope: 40 Engineering Phases (100.0% Complete)
 - Operational Watchtowers: 14 Integrated Physical Detectors
 - Automated Verification: 89+ Unit/Integration Tests (100% Pass Rate)
@@ -23,7 +23,7 @@ a360c7b9f04295e53593deb9d9a9b7a931d73fd453803f5ceaa20ed7ad7dd990  quantum/tomogr
 72739934c2593d9662aa26f8364aef06e245f7ae905166f15ab0bd01a365da8e  quantum/mesh.py
 1abc14bf83638d7f79a8092bfbc15ddfda26d73af485970fe997ad97752c8d58  security/signature.py
 f2986d0d8ee82be8a7f1131e84f36f9713744237c2493781c47ac0ea869f93b7  security/attacks.py
-7f7cbeeb44e5d821be82d8d7d08b001b4eb1675c7bf99e321239eb062d2b3dd6  security/detector.py
+61085e211c7da7ed05fa47bbd14e2d80eab4175c0244275a8fd8fb00ce7983a6  security/detector.py
 55786673b83ba50a650e5bac189adbde2acb722eb81a2c6667b12a9cd78e44f3  security/freshness.py
 798aaa6f2d6d729b92e6fc4e540c8f26d19b455e71e084e23360a210263d8254  security/calibrate.py
 6a8cf8833a01dfd3ef9ce50cb77d37c06b8ea7ea3fd01cdf3b798013da6aeef1  security/multirecipient.py
@@ -37,9 +37,9 @@ f2986d0d8ee82be8a7f1131e84f36f9713744237c2493781c47ac0ea869f93b7  security/attac
 a21929228de7c36d987dbdffa1f8e3963f8578d7a70baeed9089963efad843ad  security/mdi.py
 c99e277aead7cbcd80b57b2bf8cb79db65c9a9c0005b425b5507145b4379d406  security/wdm.py
 e9c5b0fafc3995fdb6afef9907c393abb5a6a9314c1d000f428b1f47bd11f163  analytics/soc.py
-a9926187db4308005dc9e23a64ef5b026b874ca35ccb66da82ae8d51c72c13d9  app.py
+c0a90d1f9fbc444ecd2908a962e0ff6dd921f347d957f1888c3405b061e50530  app.py
 0ac51f082ee84cadf52526f0e296e81b6b272e1df9d5477d995bad9d27419a2e  rehearsal.py
-25ad371e1fd7f4a379b4948c3d8b37b086be505837b518dc26420f688760b1db  docs/NQM_EXECUTIVE_WHITEPAPER.md
+5fe1178f0f8cfcddfbfe991b117d81ecb2e21241120f4e2b72ca3fddf2551bf6  docs/NQM_EXECUTIVE_WHITEPAPER.md
 ```
 
 ---
