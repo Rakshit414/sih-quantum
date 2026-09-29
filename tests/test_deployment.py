@@ -76,6 +76,10 @@ def test_packaging_engine_and_checksum():
     zip_path = dist_dir / "Q-SENTINEL_SIH26141_FINAL_SUBMISSION.zip"
     sha_path = dist_dir / "Q-SENTINEL_SIH26141_FINAL_SUBMISSION.zip.sha256"
 
+    if not zip_path.exists() or not sha_path.exists():
+        import package_submission
+        package_submission.create_submission_package(str(workspace_root))
+
     assert zip_path.exists(), "Distribution package zip is missing."
     assert sha_path.exists(), "Distribution package SHA-256 file is missing."
 
@@ -113,6 +117,10 @@ def test_submission_package_antivirus_safe():
     import zipfile
     workspace_root = Path(__file__).resolve().parent.parent
     zip_path = workspace_root / "dist" / "Q-SENTINEL_SIH26141_FINAL_SUBMISSION.zip"
+
+    if not zip_path.exists():
+        import package_submission
+        package_submission.create_submission_package(str(workspace_root))
 
     assert zip_path.exists(), "Distribution zip must exist."
 
