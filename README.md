@@ -379,6 +379,8 @@ print(f"Chained Block Hash: {block_hash}")  # SHA3-256
 }
 ```
 
+Machine-readable metadata: [`CITATION.cff`](CITATION.cff).
+
 ---
 
 ## References & Foundational Literature

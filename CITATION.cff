@@ -1,0 +1,21 @@
+cff-version: 1.2.0
+message: "If you evaluate or build upon this software for research or defense, please cite it as below."
+title: "Q-SENTINEL: Quantum-Inspired Cyber Threat Detection Framework"
+abstract: "Continuous Threat Surveillance, Sub-Second Early Stopping & Non-Repudiation for Teleportation-Based Quantum Digital Signatures (SIH-26141)."
+authors:
+  - family-names: "Jain"
+    given-names: "Rakshit"
+  - name: "Team QUANT"
+version: 1.0.0
+date-released: 2026-09-29
+license: MIT
+url: "https://github.com/Rakshit414/sih-quantum"
+repository-code: "https://github.com/Rakshit414/sih-quantum"
+keywords:
+  - "quantum-computing"
+  - "quantum-digital-signatures"
+  - "teleportation"
+  - "threat-detection"
+  - "sequential-analysis"
+  - "smart-india-hackathon"
+  - "national-quantum-mission"
